@@ -5,6 +5,12 @@ VisualStudioVersion = 17.14.36623.8 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentalHouse.API", "RentalHouse.API\RentalHouse.API.csproj", "{123BC8DA-B683-4590-A283-D576921680AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentalHouse.Domain", "RentalHouse.Domain\RentalHouse.Domain.csproj", "{AFF396FD-DF72-4853-A63C-6871B67C43BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentalHouse.Application", "RentalHouse.Application\RentalHouse.Application.csproj", "{D4C50C75-249E-4E93-87FE-D28F31EAAFA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RentalHouse.Infrastructure", "RentalHouse.Infrastructure\RentalHouse.Infrastructure.csproj", "{9851F19A-EDA4-42DF-B48E-AA5EE72E3851}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{123BC8DA-B683-4590-A283-D576921680AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{123BC8DA-B683-4590-A283-D576921680AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{123BC8DA-B683-4590-A283-D576921680AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFF396FD-DF72-4853-A63C-6871B67C43BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFF396FD-DF72-4853-A63C-6871B67C43BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFF396FD-DF72-4853-A63C-6871B67C43BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFF396FD-DF72-4853-A63C-6871B67C43BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4C50C75-249E-4E93-87FE-D28F31EAAFA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4C50C75-249E-4E93-87FE-D28F31EAAFA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4C50C75-249E-4E93-87FE-D28F31EAAFA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4C50C75-249E-4E93-87FE-D28F31EAAFA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9851F19A-EDA4-42DF-B48E-AA5EE72E3851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9851F19A-EDA4-42DF-B48E-AA5EE72E3851}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9851F19A-EDA4-42DF-B48E-AA5EE72E3851}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9851F19A-EDA4-42DF-B48E-AA5EE72E3851}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
