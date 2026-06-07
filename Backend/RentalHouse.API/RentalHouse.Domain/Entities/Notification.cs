@@ -13,8 +13,7 @@ namespace RentalHouse.Domain.Entities
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public string? RedirectUrl { get; set; }
-        public bool IsRead { get; set; }
-
+        public bool IsRead { get; set; } = false;
         public User User { get; set; } = null!;
     }
 }

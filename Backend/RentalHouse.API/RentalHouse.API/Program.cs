@@ -40,11 +40,16 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 builder.Services.AddScoped<IPropertyImageRepository, PropertyImageRepository>();
 
+builder.Services.AddScoped<IFacilityRepository, FacilityRepository>();
+
 // Đăng ký Repository xử lý Database cho Ảnh
 builder.Services.AddScoped<IPropertyImageRepository, PropertyImageRepository>();
 
 // Đăng ký Service xử lý lưu file vật lý vào thư mục wwwroot
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -108,7 +113,7 @@ builder.Services.AddSwaggerGen(options =>
 
 
 var app = builder.Build();
-
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // Dòng này cực kỳ quan trọng để Frontend xem được ảnh
 
