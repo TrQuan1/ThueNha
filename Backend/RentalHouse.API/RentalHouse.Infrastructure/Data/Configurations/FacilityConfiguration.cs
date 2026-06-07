@@ -11,6 +11,7 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
         builder.HasQueryFilter(f => !f.IsDeleted);
 
         builder.Property(f => f.Name).IsRequired().HasMaxLength(100);
+        builder.Property(f => f.Icon).HasMaxLength(100);
         builder.Property(f => f.IconUrl).HasMaxLength(500);
     }
 }

@@ -123,6 +123,11 @@ namespace RentalHouse.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
                     b.Property<string>("IconUrl")
                         .IsRequired()
                         .HasMaxLength(500)
