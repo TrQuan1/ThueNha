@@ -15,6 +15,18 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+// BỔ SUNG: Cấu hình CORS để cho phép Frontend Vue (localhost:5173) gọi API
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // 2. Đăng ký các dịch vụ Repository Pattern & Unit of Work
 builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -35,19 +47,10 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey chưa được cấu hình.");
 
 builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
-
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-
 builder.Services.AddScoped<IPropertyImageRepository, PropertyImageRepository>();
-
 builder.Services.AddScoped<IFacilityRepository, FacilityRepository>();
-
-// Đăng ký Repository xử lý Database cho Ảnh
-builder.Services.AddScoped<IPropertyImageRepository, PropertyImageRepository>();
-
-// Đăng ký Service xử lý lưu file vật lý vào thư mục wwwroot
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
-
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
@@ -58,7 +61,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false; // Tạm thời tắt do chạy Localhost Development
+    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -69,7 +72,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudience = jwtSettings["Audience"],
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero // Triệt tiêu độ trễ 5 phút mặc định của Server
+        ClockSkew = TimeSpan.Zero
     };
 });
 
@@ -83,7 +86,6 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1"
     });
 
-    // Tích hợp nút nhập khóa Access Token (JWT) lên giao diện Swagger UI
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Description = "Nhập chuỗi Token của bạn theo định dạng: Bearer {chuỗi_token_của_bạn}",
@@ -100,7 +102,6 @@ builder.Services.AddSwaggerGen(options =>
             {
                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
-                    // ĐÃ SỬA CHÍNH XÁC Ở DÒNG NÀY: Dùng ReferenceType
                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
                     Id = "Bearer"
                 }
@@ -110,12 +111,13 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
-
 var app = builder.Build();
-app.UseStaticFiles();
+
+// BỔ SUNG: Kích hoạt CORS (Phải nằm trước Authentication)
+app.UseCors("AllowFrontend");
+
 app.UseHttpsRedirection();
-app.UseStaticFiles(); // Dòng này cực kỳ quan trọng để Frontend xem được ảnh
+app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {
@@ -123,9 +125,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-// Kích hoạt Middleware Xác thực (Phải đặt TRƯỚC UseAuthorization)
 app.UseAuthentication();
 app.UseAuthorization();
 
