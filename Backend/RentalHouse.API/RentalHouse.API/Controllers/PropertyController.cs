@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalHouse.Application.Features.Properties.Commands;
 using RentalHouse.Application.Features.Properties.Queries;
+using RentalHouse.Application.Interfaces;
 using RentalHouse.Domain.Constants;
 using System.Security.Claims;
 
@@ -155,4 +156,6 @@ public class PropertyController : ControllerBase
             return BadRequest(new { Error = ex.Message });
         }
     }
+
+    
 }
