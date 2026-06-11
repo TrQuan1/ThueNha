@@ -1,53 +1,68 @@
-// src/stores/auth.store.ts
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { authService } from '../services/auth.service'
-import type { User, LoginRequest } from '../types/auth'
+import { AuthService } from '../services/auth.service'
+import type { LoginRequest } from '../types/auth'
 
-export const useAuthStore = defineStore('auth', () => {
-  // --- STATE ---
-  // Khởi tạo token từ localStorage để giữ trạng thái đăng nhập khi reload trang
-  const token = ref<string | null>(localStorage.getItem('accessToken'))
-  const user = ref<User | null>(null)
+interface UserInfo {
+  userId: string
+  name: string
+  email: string
+  role: string
+}
 
-  // --- GETTERS (Computed properties) ---
-  const isAuthenticated = computed<boolean>(() => !!token.value)
+interface AuthState {
+  user: UserInfo | null
+  token: string | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  error: string | null
+}
 
-  // --- ACTIONS ---
-  /**
-   * Xử lý luồng đăng nhập hệ thống
-   * @param payload Bản tin chứa email và password tuân thủ LoginRequest interface
-   */
-  async function handleLogin(payload: LoginRequest): Promise<void> {
-    try {
-      const response = await authService.login(payload)
+export const useAuthStore = defineStore('auth', {
+  state: (): AuthState => ({
+    user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') as string) : null,
+    token: localStorage.getItem('token'),
+    isAuthenticated: !!localStorage.getItem('token'),
+    isLoading: false,
+    error: null,
+  }),
 
-      // Cập nhật dữ liệu vào State bộ nhớ tạm
-      token.value = response.token
-      user.value = response.user
+  actions: {
+    async login(credentials: LoginRequest) {
+      this.isLoading = true
+      this.error = null
+      try {
+        const response = await AuthService.login(credentials)
 
-      // Đồng bộ mã thông báo Token vào localStorage để duy trì phiên
-      localStorage.setItem('accessToken', response.token)
-    } catch (error) {
-      // Chuyển tiếp lỗi ra ngoài để các Component (.vue) có thể tiếp nhận và hiển thị thông báo lỗi lên UI
-      return Promise.reject(error)
-    }
-  }
+        this.token = response.token
+        this.user = {
+          userId: response.userId,
+          name: response.name,
+          email: response.email,
+          role: response.role,
+        }
+        this.isAuthenticated = true
 
-  /**
-   * Đăng xuất, xóa toàn bộ trạng thái trong State và bộ lưu trữ vật lý của trình duyệt
-   */
-  function logout(): void {
-    token.value = null
-    user.value = null
-    localStorage.removeItem('accessToken')
-  }
+        localStorage.setItem('token', response.token)
+        localStorage.setItem('user', JSON.stringify(this.user))
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.error = error.message
+        } else {
+          this.error = 'Đã xảy ra lỗi hệ thống'
+        }
+      } finally {
+        this.isLoading = false
+      }
+    },
 
-  return {
-    token,
-    user,
-    isAuthenticated,
-    handleLogin,
-    logout,
-  }
+    logout() {
+      this.user = null
+      this.token = null
+      this.isAuthenticated = false
+      this.error = null
+
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+    },
+  },
 })
