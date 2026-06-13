@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { AuthService } from '../services/auth.service'
-import type { LoginRequest } from '../types/auth'
+import type { LoginRequest, RegisterRequest, AuthResponse } from '../types/auth'
 
 interface UserInfo {
   userId: string
@@ -32,27 +32,50 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const response = await AuthService.login(credentials)
-
-        this.token = response.token
-        this.user = {
-          userId: response.userId,
-          name: response.name,
-          email: response.email,
-          role: response.role,
-        }
-        this.isAuthenticated = true
-
-        localStorage.setItem('token', response.token)
-        localStorage.setItem('user', JSON.stringify(this.user))
+        this.setAuthData(response)
       } catch (error: unknown) {
         if (error instanceof Error) {
           this.error = error.message
         } else {
-          this.error = 'Đã xảy ra lỗi hệ thống'
+          this.error = 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin.'
         }
+        throw error
       } finally {
         this.isLoading = false
       }
+    },
+
+    async register(credentials: RegisterRequest) {
+      this.isLoading = true
+      this.error = null
+      try {
+        const response = await AuthService.register(credentials)
+        if (response && response.token) {
+          this.setAuthData(response)
+        }
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          this.error = error.message
+        } else {
+          this.error = 'Đăng ký thất bại. Vui lòng kiểm tra lại.'
+        }
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    setAuthData(response: AuthResponse) {
+      this.token = response.token
+      this.user = {
+        userId: response.userId,
+        name: response.name,
+        email: response.email,
+        role: response.role,
+      }
+      this.isAuthenticated = true
+      localStorage.setItem('token', response.token)
+      localStorage.setItem('user', JSON.stringify(this.user))
     },
 
     logout() {
