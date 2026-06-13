@@ -1,73 +1,118 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth.store'
-
-const router = useRouter()
-const authStore = useAuthStore()
-
-const userName = computed(() => authStore.user?.fullName ?? 'Tài khoản')
-
-const handleLogout = () => {
-  authStore.logout()
-  router.push('/')
-}
-</script>
-
 <template>
-  <div class="flex min-h-screen flex-col bg-slate-50 text-slate-900">
-    <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <nav class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <RouterLink to="/" class="flex items-center gap-3 font-bold text-slate-950">
-          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
-            RH
-          </span>
-          <span class="text-xl">RentalHouse</span>
-        </RouterLink>
-
-        <div class="flex items-center gap-3">
-          <template v-if="authStore.isAuthenticated">
-            <span class="hidden text-sm font-medium text-slate-600 sm:inline">
-              {{ userName }}
-            </span>
-            <button
-              type="button"
-              class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-              @click="handleLogout"
-            >
-              Đăng xuất
-            </button>
-          </template>
-
-          <template v-else>
-            <RouterLink
-              to="/login"
-              class="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100"
-            >
-              Đăng nhập
-            </RouterLink>
-            <RouterLink
-              to="/register"
-              class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
-            >
-              Đăng ký
-            </RouterLink>
-          </template>
-        </div>
-      </nav>
+  <div class="layout-wrapper">
+    <header class="app-header">
+      <div class="logo">
+        <h2>MyLogo</h2>
+      </div>
+      <div class="auth-actions">
+        <template v-if="!authStore.isAuthenticated">
+          <button class="login-trigger-btn" @click="isAuthModalOpen = true">
+            Đăng nhập / Đăng ký
+          </button>
+        </template>
+        <template v-else>
+          <span class="welcome-text">Xin chào, {{ authStore.user?.name }}</span>
+          <button class="logout-btn" @click="handleLogout">Đăng xuất</button>
+        </template>
+      </div>
     </header>
 
-    <main class="flex-1">
+    <main class="main-content flex-grow">
       <RouterView />
     </main>
 
-    <footer class="border-t border-slate-200 bg-white">
-      <div
-        class="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
-      >
-        <p>© 2026 RentalHouse. All rights reserved.</p>
-        <p>Nền tảng thuê nhà tiện lợi và an toàn.</p>
-      </div>
+    <footer class="app-footer">
+      <p>&copy; 2026 My Application. All rights reserved.</p>
     </footer>
+
+    <AuthModal v-model="isAuthModalOpen" />
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { RouterView } from 'vue-router'
+import { useAuthStore } from '../stores/auth.store'
+import AuthModal from '../components/common/AuthModal.vue'
+
+const authStore = useAuthStore()
+const isAuthModalOpen = ref(false)
+
+const handleLogout = () => {
+  authStore.logout()
+}
+</script>
+
+<style scoped>
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.logo h2 {
+  margin: 0;
+  color: #111827;
+}
+
+.auth-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.welcome-text {
+  font-weight: 500;
+  color: #374151;
+}
+
+.login-trigger-btn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.logout-btn {
+  background-color: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.logout-btn:hover {
+  background-color: #fef2f2;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 2rem;
+  background-color: #f9fafb;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: #1f2937;
+  color: #9ca3af;
+}
+</style>

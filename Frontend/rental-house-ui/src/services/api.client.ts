@@ -1,8 +1,8 @@
 import axios from 'axios'
 
+// src/services/api.client.ts
 const apiClient = axios.create({
-  // Đường dẫn gốc trỏ thẳng đến Backend .NET của bạn theo launchSettings.json
-  baseURL: 'http://localhost:5180/api',
+  baseURL: 'https://localhost:7023/api', // Dùng HTTPS với port 7023
   headers: {
     'Content-Type': 'application/json',
   },

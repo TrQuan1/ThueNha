@@ -8,21 +8,16 @@ const router = createRouter({
       path: '/',
       component: MainLayout,
       children: [
-        // {
-        //   path: '',
-        //   name: 'home',
-        //   component: () => import('@/views/HomeView.vue'),
-        // },
         {
-          path: 'login',
-          name: 'login',
-          component: () => import('@/views/auth/LoginView.vue'),
+          path: '',
+          name: 'home',
+          component: () => import('@/views/properties/HomeView.vue'),
         },
-        // {
-        //   path: 'register',
-        //   name: 'register',
-        //   component: RegisterView,
-        // },
+        {
+          path: 'properties/:id',
+          name: 'property-detail',
+          component: () => import('@/views/properties/PropertyDetailView.vue'),
+        },
       ],
     },
   ],
