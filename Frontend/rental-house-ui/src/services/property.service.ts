@@ -1,5 +1,5 @@
 import apiClient from './api.client'
-import type { Property } from '@/types/property'
+import type { Property, PropertyFilterParams } from '@/types/property'
 
 export interface CreatePropertyRequest {
   title: string
@@ -10,8 +10,10 @@ export interface CreatePropertyRequest {
 }
 
 export const propertyService = {
-  async getAllProperties(): Promise<Property[]> {
-    const response = await apiClient.get<Property[]>('/properties')
+  // Thay thế getAllProperties bằng getProperties có hỗ trợ filter
+  async getProperties(params?: PropertyFilterParams): Promise<Property[]> {
+    // Endpoint phụ thuộc vào cấu hình route của Controller C#, thường là /Properties hoặc /Property
+    const response = await apiClient.get<Property[]>('/properties', { params })
     return response.data
   },
 
@@ -27,19 +29,15 @@ export const propertyService = {
 
   async uploadImages(propertyId: number | string, files: File[]): Promise<unknown> {
     const formData = new FormData()
-
-    // Lặp qua mảng files và append từng file với key là 'files'
     files.forEach((file) => {
       formData.append('files', file)
     })
 
-    // Gửi request POST kèm theo config header multipart/form-data
     const response = await apiClient.post<unknown>(`/properties/${propertyId}/images`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
-
     return response.data
   },
 }
