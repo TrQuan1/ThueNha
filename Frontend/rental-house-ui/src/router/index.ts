@@ -18,6 +18,11 @@ const router = createRouter({
           name: 'property-detail',
           component: () => import('@/views/properties/PropertyDetailView.vue'),
         },
+        {
+          path: 'host/properties/create',
+          name: 'property-create',
+          component: () => import('@/views/properties/CreatePropertyView.vue'),
+        },
       ],
     },
   ],
