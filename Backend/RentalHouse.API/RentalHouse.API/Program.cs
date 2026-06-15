@@ -7,6 +7,7 @@ using RentalHouse.Application.Interfaces;
 using RentalHouse.Infrastructure.Data;
 using RentalHouse.Infrastructure.Repositories;
 using RentalHouse.Infrastructure.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
+              .SetIsOriginAllowed((host) => true) // Cho phép mọi origin trong Dev
               .AllowCredentials();
     });
 });
@@ -76,7 +78,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Bỏ qua lỗi vòng lặp vô tận của Entity Framework
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

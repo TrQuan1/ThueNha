@@ -25,7 +25,8 @@ onMounted(async () => {
   const id = route.params.id as string
   try {
     const response = await propertyService.getPropertyById(id)
-    property.value = response.data || response
+    // SỬA TẠI ĐÂY: Gán trực tiếp đối tượng response (kiểu Property) vào ref
+    property.value = response
   } catch (err) {
     console.error('Lỗi lấy chi tiết nhà:', err)
     error.value = 'Không thể tải thông tin chi tiết căn nhà này.'

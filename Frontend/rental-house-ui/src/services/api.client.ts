@@ -1,24 +1,27 @@
 import axios from 'axios'
 
-// src/services/api.client.ts
 const apiClient = axios.create({
-  baseURL: 'https://localhost:7023/api', // Dùng HTTPS với port 7023
+  baseURL: 'https://localhost:7023/api', // Giữ nguyên baseURL của bạn
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Trạm gác (Interceptor) tự động nhét Token vào mỗi request (khi đã đăng nhập)
+// Bổ sung Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
-    // Nếu bạn lưu token bằng tên khác (ví dụ: 'jwt_token'), hãy sửa lại ở đây nhé
+    // Lấy token từ localStorage (Đảm bảo lúc login bạn cũng lưu với key là 'token')
     const token = localStorage.getItem('token')
-    if (token) {
+
+    // Nếu có token và config.headers tồn tại, gắn vào Header Authorization
+    if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
     return config
   },
   (error) => {
+    // Xử lý khi có lỗi xảy ra trong quá trình setup request
     return Promise.reject(error)
   },
 )

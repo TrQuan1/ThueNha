@@ -50,7 +50,8 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const response = await AuthService.register(credentials)
-        if (response && response.token) {
+        // Đồng bộ kiểm tra chuỗi accessToken mới sau khi cập nhật interface
+        if (response && response.accessToken) {
           this.setAuthData(response)
         }
       } catch (error: unknown) {
@@ -66,15 +67,16 @@ export const useAuthStore = defineStore('auth', {
     },
 
     setAuthData(response: AuthResponse) {
-      this.token = response.token
+      // Cập nhật gán thuộc tính khớp chính xác với dữ liệu từ Backend
+      this.token = response.accessToken
       this.user = {
         userId: response.userId,
-        name: response.name,
+        name: response.fullName,
         email: response.email,
         role: response.role,
       }
       this.isAuthenticated = true
-      localStorage.setItem('token', response.token)
+      localStorage.setItem('token', response.accessToken)
       localStorage.setItem('user', JSON.stringify(this.user))
     },
 
