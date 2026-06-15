@@ -9,6 +9,21 @@ public class PropertyRepository : GenericRepository<Property>, IPropertyReposito
 {
     public PropertyRepository(ApplicationDbContext context) : base(context) { }
 
+    public override async Task<Property?> GetByIdAsync(int id)
+    {
+        return await _dbSet
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+    }
+
+    public override async Task<IEnumerable<Property>> GetAllAsync()
+    {
+        return await _dbSet
+            .Include(p => p.Images)
+            .Where(p => !p.IsDeleted)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Property>> GetPropertiesByHostAsync(int hostId)
     {
         return await _dbSet

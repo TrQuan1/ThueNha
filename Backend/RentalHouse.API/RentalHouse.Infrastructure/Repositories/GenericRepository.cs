@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿// GenericRepository.cs
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using RentalHouse.Application.Interfaces;
 using RentalHouse.Domain.Common;
@@ -17,13 +18,13 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
         _dbSet = context.Set<T>();
     }
 
-    public async Task<T?> GetByIdAsync(int id)
+    public virtual async Task<T?> GetByIdAsync(int id)
     {
         // Chỉ lấy những bản ghi chưa bị xóa mềm
         return await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         // Chỉ lấy những bản ghi chưa bị xóa mềm
         return await _dbSet.Where(e => !e.IsDeleted).ToListAsync();
