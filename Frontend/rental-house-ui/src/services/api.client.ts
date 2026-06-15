@@ -1,19 +1,22 @@
 import axios from 'axios'
 
+// Cấu hình Axios với baseURL trỏ về Backend
 const apiClient = axios.create({
-  baseURL: 'https://localhost:7023/api', // Giữ nguyên baseURL của bạn
+  baseURL: 'https://localhost:7023/api',
   headers: {
     'Content-Type': 'application/json',
   },
 })
 
-// Bổ sung Request Interceptor
+/**
+ * Request Interceptor: Tự động đính kèm JWT Token vào Header của mọi request
+ */
 apiClient.interceptors.request.use(
   (config) => {
-    // Lấy token từ localStorage (Đảm bảo lúc login bạn cũng lưu với key là 'token')
+    // Lấy token từ localStorage
     const token = localStorage.getItem('token')
 
-    // Nếu có token và config.headers tồn tại, gắn vào Header Authorization
+    // Nếu tồn tại token, gắn vào Header Authorization theo chuẩn Bearer
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -21,7 +24,7 @@ apiClient.interceptors.request.use(
     return config
   },
   (error) => {
-    // Xử lý khi có lỗi xảy ra trong quá trình setup request
+    // Nếu có lỗi trong quá trình cấu hình request, reject promise
     return Promise.reject(error)
   },
 )

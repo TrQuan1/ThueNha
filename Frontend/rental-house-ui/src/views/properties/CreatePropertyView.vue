@@ -71,7 +71,7 @@
           >
             <div class="space-y-1 text-center">
               <span class="text-4xl">📷</span>
-              <div class="flex text-sm text-gray-600">
+              <div class="flex justify-center text-sm text-gray-600">
                 <label
                   class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-hidden"
                 >
