@@ -42,7 +42,7 @@
 
         <form v-else @submit.prevent="handleRegister">
           <div class="form-group">
-            <input v-model="registerForm.name" type="text" placeholder="Họ và Tên" required />
+            <input v-model="registerForm.fullName" type="text" placeholder="Họ và Tên" required />
           </div>
           <div class="form-group">
             <input v-model="registerForm.email" type="email" placeholder="Email" required />
@@ -65,6 +65,15 @@
             <span class="eye-icon" @click="showPassword = !showPassword">
               {{ showPassword ? '👁️' : '🔒' }}
             </span>
+          </div>
+
+          <div class="form-group role-group">
+            <label>
+              <input type="radio" v-model.number="registerForm.role" :value="3" /> Người thuê nhà
+            </label>
+            <label>
+              <input type="radio" v-model.number="registerForm.role" :value="2" /> Chủ nhà
+            </label>
           </div>
 
           <div class="form-footer justify-end">
@@ -96,10 +105,11 @@ const showPassword = ref(false)
 
 const loginForm = reactive<LoginRequest>({ email: '', password: '' })
 const registerForm = reactive<RegisterRequest>({
-  name: '',
+  fullName: '',
   email: '',
   phoneNumber: '',
   password: '',
+  role: 3, // Mặc định là 3 - Người thuê
 })
 
 const closeModal = () => {
@@ -114,7 +124,11 @@ const handleLogin = async () => {
 
 const handleRegister = async () => {
   await authStore.register(registerForm)
-  if (authStore.isAuthenticated) closeModal()
+  // Nếu không có lỗi, thông báo thành công và chuyển sang form đăng nhập
+  if (!authStore.error) {
+    alert('Đăng ký thành công! Vui lòng đăng nhập.')
+    isLogin.value = true
+  }
 }
 </script>
 
@@ -170,7 +184,10 @@ const handleRegister = async () => {
   position: relative;
 }
 
-input {
+input[type='text'],
+input[type='email'],
+input[type='tel'],
+input[type='password'] {
   width: 100%;
   padding: 0.9rem;
   border: 1px solid #ddd;
@@ -188,6 +205,22 @@ input {
   right: 1rem;
   cursor: pointer;
   user-select: none;
+}
+
+.role-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.role-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
 }
 
 .form-footer {

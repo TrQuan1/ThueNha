@@ -21,12 +21,20 @@ const formatCurrency = (value: number): string => {
   }).format(value)
 }
 
+// Hàm kiểm tra và gắn domain Backend cho ảnh
+const getFullImageUrl = (path?: string): string => {
+  if (!path) return fallbackImage
+  return path.startsWith('/') ? `https://localhost:7023${path}` : path
+}
+
 onMounted(async () => {
   const id = route.params.id as string
   try {
     const response = await propertyService.getPropertyById(id)
-    // SỬA TẠI ĐÂY: Gán trực tiếp đối tượng response (kiểu Property) vào ref
-    property.value = response
+
+    // Ép kiểu an toàn không dùng any để tránh lỗi ESLint cấu hình dự án
+    const rawData = (response as { data?: Property }).data || (response as Property)
+    property.value = rawData
   } catch (err) {
     console.error('Lỗi lấy chi tiết nhà:', err)
     error.value = 'Không thể tải thông tin chi tiết căn nhà này.'
@@ -55,7 +63,7 @@ onMounted(async () => {
 
       <div class="w-full aspect-21/9 rounded-2xl overflow-hidden bg-slate-100 shadow-sm">
         <img
-          :src="property.imageUrl || fallbackImage"
+          :src="getFullImageUrl(property.imageUrl)"
           :alt="property.title"
           class="w-full h-full object-cover"
         />

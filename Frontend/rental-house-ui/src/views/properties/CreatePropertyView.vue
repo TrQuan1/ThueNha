@@ -143,9 +143,17 @@ const handleSubmit = async () => {
   try {
     // 1. Tạo Property trước
     const newProperty = await propertyService.createProperty(formData)
-    const propertyId = newProperty.id
 
-    // 2. Nếu có file thì upload ảnh
+    // 2. Lấy ID an toàn, linh hoạt với cấu trúc Backend và KHÔNG dùng any
+    const parsedResponse = newProperty as { data?: { id?: number | string }; id?: number | string }
+    const propertyId = parsedResponse.data?.id || parsedResponse.id
+
+    // Kiểm tra chốt chặn, nếu không có ID thì dừng ngay tránh lỗi gọi API URL "undefined"
+    if (!propertyId) {
+      throw new Error('Đăng tin thành công nhưng không đọc được ID nhà để tải ảnh lên!')
+    }
+
+    // 3. Nếu có file thì upload ảnh
     if (selectedFiles.value.length > 0) {
       await propertyService.uploadImages(propertyId, selectedFiles.value)
     }
