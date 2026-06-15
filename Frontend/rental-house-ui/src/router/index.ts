@@ -49,8 +49,8 @@ const router = createRouter({
   ],
 })
 
-// Global Before Guard xử lý phân quyền
-router.beforeEach((to, from, next) => {
+// Global Before Guard xử lý phân quyền theo chuẩn Vue Router 4 (bỏ hoàn toàn callback next)
+router.beforeEach((to) => {
   const token = localStorage.getItem('token')
   const userStr = localStorage.getItem('user')
 
@@ -58,7 +58,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
     if (!token || !userStr) {
       alert('Vui lòng đăng nhập để tiếp tục.')
-      return next('/')
+      return '/'
     }
 
     // 2. Kiểm tra danh sách quyền được phép truy cập (allowedRoles)
@@ -69,16 +69,17 @@ router.beforeEach((to, from, next) => {
 
         if (!to.meta.allowedRoles.includes(userRole)) {
           alert('Bạn không có quyền truy cập trang này.')
-          return next('/')
+          return '/'
         }
-      } catch (error) {
-        console.error('Lỗi khi kiểm tra phân quyền:', error) // Đã sử dụng 'error'
-        next('/')
+      } catch {
+        alert('Lỗi cấu trúc dữ liệu người dùng.')
+        return '/'
       }
     }
   }
 
-  next()
+  // Cho phép điều hướng đi tiếp hợp lệ
+  return true
 })
 
 export default router
