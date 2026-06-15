@@ -1,142 +1,224 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import propertyService from '@/services/property.service'
-import type { Property } from '@/types/property'
-
-const route = useRoute()
-const property = ref<Property | null>(null)
-const isLoading = ref(true)
-const error = ref<string | null>(null)
-
-const fallbackImage =
-  'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80'
-
-const formatCurrency = (value: number): string => {
-  if (!value) return '0 VND'
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    maximumFractionDigits: 0,
-  }).format(value)
-}
-
-// Hàm kiểm tra và gắn domain Backend cho ảnh
-const getFullImageUrl = (path?: string): string => {
-  if (!path) return fallbackImage
-  return path.startsWith('/') ? `https://localhost:7023${path}` : path
-}
-
-onMounted(async () => {
-  const id = route.params.id as string
-  try {
-    const response = await propertyService.getPropertyById(id)
-
-    // Ép kiểu an toàn không dùng any để tránh lỗi ESLint cấu hình dự án
-    const rawData = (response as { data?: Property }).data || (response as Property)
-    property.value = rawData
-  } catch (err) {
-    console.error('Lỗi lấy chi tiết nhà:', err)
-    error.value = 'Không thể tải thông tin chi tiết căn nhà này.'
-  } finally {
-    isLoading.value = false
-  }
-})
-</script>
-
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
-    <div v-if="isLoading" class="text-center py-20 text-slate-500 animate-pulse text-lg">
+  <div class="max-w-7xl mx-auto py-8">
+    <div v-if="isLoading" class="text-center py-20 text-gray-500">
       Đang tải thông tin chi tiết...
     </div>
-    <div v-else-if="error || !property" class="text-center py-20 text-red-500 text-lg">
-      {{ error || 'Không tìm thấy căn nhà yêu cầu.' }}
+
+    <div v-else-if="error" class="text-center py-20 text-red-500 font-medium">
+      {{ error }}
     </div>
 
-    <div v-else class="space-y-8">
-      <div>
-        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">{{ property.title }}</h1>
-        <p class="text-slate-500 flex items-center gap-1">
-          <span class="font-medium text-slate-700">📍 Địa chỉ:</span> {{ property.address }}
-        </p>
-      </div>
-
-      <div class="w-full aspect-21/9 rounded-2xl overflow-hidden bg-slate-100 shadow-sm">
-        <img
-          :src="getFullImageUrl(property.imageUrl)"
-          :alt="property.title"
-          class="w-full h-full object-cover"
-        />
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div class="lg:col-span-2 space-y-6">
-          <div class="border-b border-slate-200 pb-4">
-            <h2 class="text-xl font-bold text-slate-900 mb-2">Đặc điểm chỗ ở</h2>
-            <div class="flex gap-4 text-sm font-medium text-slate-600">
-              <span class="bg-slate-100 px-3 py-1.5 rounded-lg">🏠 Căn hộ dịch vụ</span>
-              <span class="bg-slate-100 px-3 py-1.5 rounded-lg"
-                >👥 Tối đa {{ property.maxGuests }} khách</span
-              >
-            </div>
-          </div>
-
-          <div class="space-y-3">
-            <h2 class="text-xl font-bold text-slate-900">Mô tả chi tiết</h2>
-            <p class="text-slate-600 leading-relaxed whitespace-pre-line">
-              {{ property.description }}
-            </p>
-          </div>
-
-          <div class="space-y-3 pt-4 border-t border-slate-200">
-            <h2 class="text-xl font-bold text-slate-900">Tiện ích đi kèm</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm text-slate-600">
-              <div class="flex items-center gap-2">📶 Wifi miễn phí</div>
-              <div class="flex items-center gap-2">❄️ Điều hòa nhiệt độ</div>
-              <div class="flex items-center gap-2">🏍️ Chỗ để xe máy</div>
-              <div class="flex items-center gap-2">🧼 Máy giặt tự động</div>
-              <div class="flex items-center gap-2">🚿 Nước nóng lạnh</div>
-            </div>
-          </div>
+    <div v-else-if="property" class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div class="lg:col-span-2 space-y-8">
+        <div>
+          <h1 class="text-3xl font-extrabold text-gray-900">{{ property.title }}</h1>
+          <p class="text-gray-600 mt-2">📍 {{ property.address }}</p>
         </div>
 
-        <div
-          class="border border-slate-200 rounded-2xl p-6 bg-white shadow-lg lg:sticky lg:top-6 space-y-4"
-        >
-          <div>
-            <span class="text-2xl font-bold text-blue-600">{{
-              formatCurrency(property.pricePerNight)
-            }}</span>
-            <span class="text-slate-500 text-sm"> / đêm</span>
+        <div class="w-full h-100 overflow-hidden rounded-2xl bg-gray-200">
+          <img
+            :src="getFullImageUrl(property.imageUrl)"
+            :alt="property.title"
+            class="w-full h-full object-cover"
+            @error="
+              (e) =>
+                ((e.target as HTMLImageElement).src = 'https://placehold.co/800x400?text=No+Image')
+            "
+          />
+        </div>
+
+        <div class="prose max-w-none text-gray-700">
+          <h3 class="text-xl font-bold text-gray-900 mb-3">Mô tả</h3>
+          <p class="whitespace-pre-line">{{ property.description }}</p>
+        </div>
+      </div>
+
+      <div class="lg:col-span-1">
+        <div class="sticky top-24 bg-white p-6 border border-gray-200 rounded-2xl shadow-xl">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">
+            {{ property.pricePerNight.toLocaleString() }} VND
+            <span class="text-base font-normal text-gray-500">/ đêm</span>
+          </h3>
+
+          <div class="space-y-4 mb-6">
+            <div class="flex flex-col">
+              <label class="text-xs font-bold text-gray-700 uppercase mb-1">Nhận phòng</label>
+              <input
+                type="date"
+                v-model="checkInDate"
+                :min="today"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden transition"
+              />
+            </div>
+
+            <div class="flex flex-col">
+              <label class="text-xs font-bold text-gray-700 uppercase mb-1">Trả phòng</label>
+              <input
+                type="date"
+                v-model="checkOutDate"
+                :min="checkInDate || today"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden transition"
+              />
+            </div>
+
+            <div class="flex flex-col">
+              <label class="text-xs font-bold text-gray-700 uppercase mb-1"
+                >Số khách (Tối đa: {{ property.maxGuests }})</label
+              >
+              <input
+                type="number"
+                v-model.number="guests"
+                min="1"
+                :max="property.maxGuests"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden transition"
+              />
+            </div>
           </div>
 
-          <div class="border border-slate-200 rounded-xl divide-y divide-slate-200 text-xs">
-            <div class="grid grid-cols-2 divide-x divide-slate-200">
-              <div class="p-3">
-                <label class="font-bold block uppercase text-slate-500 mb-1">Nhận phòng</label>
-                <span class="text-sm text-slate-800">Chọn ngày</span>
-              </div>
-              <div class="p-3">
-                <label class="font-bold block uppercase text-slate-500 mb-1">Trả phòng</label>
-                <span class="text-sm text-slate-800">Chọn ngày</span>
-              </div>
+          <div v-if="totalNights > 0" class="border-t border-gray-200 pt-4 mb-4 space-y-3">
+            <div class="flex justify-between text-gray-600">
+              <span>{{ property.pricePerNight.toLocaleString() }} VND x {{ totalNights }} đêm</span>
+              <span>{{ totalPrice.toLocaleString() }} VND</span>
             </div>
-            <div class="p-3">
-              <label class="font-bold block uppercase text-slate-500 mb-1">Số lượng khách</label>
-              <span class="text-sm text-slate-800">1 khách</span>
+            <div
+              class="flex justify-between font-bold text-lg text-gray-900 border-t border-gray-200 pt-3 mt-3"
+            >
+              <span>Tổng cộng</span>
+              <span>{{ totalPrice.toLocaleString() }} VND</span>
             </div>
+          </div>
+
+          <div
+            v-if="bookingError"
+            class="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg font-medium text-center"
+          >
+            {{ bookingError }}
           </div>
 
           <button
-            type="button"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-colors shadow-md shadow-blue-200 text-center"
+            @click="handleBooking"
+            :disabled="isBooking || totalNights <= 0"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition cursor-pointer shadow-md disabled:bg-gray-400 disabled:shadow-none disabled:cursor-not-allowed"
           >
-            Liên hệ đặt phòng
+            {{ isBooking ? 'Đang xử lý...' : 'Đặt phòng ngay' }}
           </button>
-
-          <p class="text-center text-xs text-slate-400">Bạn vẫn chưa bị trừ tiền ở bước này</p>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { propertyService } from '@/services/property.service'
+import { bookingService } from '@/services/booking.service'
+import { useAuthStore } from '@/stores/auth.store'
+import type { Property } from '@/types/property'
+import type { CreateBookingRequest } from '@/types/booking'
+
+const route = useRoute()
+const authStore = useAuthStore()
+
+// Cấu hình URL Ảnh
+const BACKEND_URL = import.meta.env.VITE_API_URL || 'https://localhost:7023/'
+const getFullImageUrl = (relativeUrl: string | undefined) => {
+  if (!relativeUrl) return ''
+  return `${BACKEND_URL.replace('/api', '')}${relativeUrl}`
+}
+
+// State dữ liệu
+const property = ref<Property | null>(null)
+const isLoading = ref(true)
+const error = ref<string | null>(null)
+
+// Form Đặt phòng
+const checkInDate = ref<string>('')
+const checkOutDate = ref<string>('')
+const guests = ref<number>(1)
+const isBooking = ref(false)
+const bookingError = ref<string | null>(null)
+
+// Lấy ngày hôm nay theo chuẩn YYYY-MM-DD để chặn quá khứ
+const today = new Date().toISOString().split('T')[0]
+
+// Computed: Tính số đêm
+const totalNights = computed(() => {
+  if (!checkInDate.value || !checkOutDate.value) return 0
+  const start = new Date(checkInDate.value)
+  const end = new Date(checkOutDate.value)
+  const diffTime = end.getTime() - start.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays > 0 ? diffDays : 0
+})
+
+// Computed: Tính tổng tiền
+const totalPrice = computed(() => {
+  if (!property.value) return 0
+  return totalNights.value * property.value.pricePerNight
+})
+
+// Lấy dữ liệu khi load trang
+onMounted(async () => {
+  const id = route.params.id as string
+  try {
+    property.value = await propertyService.getPropertyById(id)
+  } catch {
+    error.value = 'Không thể tải thông tin chi tiết căn nhà.'
+  } finally {
+    isLoading.value = false
+  }
+})
+
+// Xử lý gửi Form Đặt phòng
+const handleBooking = async () => {
+  bookingError.value = null
+
+  // 1. Kiểm tra đăng nhập
+  if (!authStore.isAuthenticated) {
+    bookingError.value = 'Vui lòng Đăng nhập để tiến hành đặt phòng.'
+    return
+  }
+
+  // 2. Kiểm tra ngày tháng
+  if (totalNights.value <= 0) {
+    bookingError.value = 'Ngày trả phòng phải sau ngày nhận phòng.'
+    return
+  }
+
+  // 3. Kiểm tra số lượng khách
+  if (property.value && (guests.value < 1 || guests.value > property.value.maxGuests)) {
+    bookingError.value = `Vui lòng chọn số lượng khách từ 1 đến ${property.value.maxGuests}.`
+    return
+  }
+
+  isBooking.value = true
+  try {
+    const payload: CreateBookingRequest = {
+      propertyId: property.value!.id,
+      checkInDate: checkInDate.value,
+      checkOutDate: checkOutDate.value,
+      numberOfGuests: guests.value,
+      totalPrice: totalPrice.value,
+    }
+
+    await bookingService.createBooking(payload)
+
+    alert('🎉 Đặt phòng thành công! Chủ nhà sẽ liên hệ với bạn sớm nhất.')
+
+    // Reset Form
+    checkInDate.value = ''
+    checkOutDate.value = ''
+    guests.value = 1
+  } catch (error: unknown) {
+    // Ép kiểu an toàn (Safe Type Assertion) thay vì dùng any
+    const err = error as { response?: { data?: { error?: string } } }
+    const backendError = err?.response?.data?.error || 'Có lỗi xảy ra khi gọi API đặt phòng.'
+
+    bookingError.value = backendError
+    alert('❌ Không thể đặt phòng: ' + backendError)
+  } finally {
+    isBooking.value = false
+  }
+}
+</script>
