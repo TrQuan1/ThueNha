@@ -8,11 +8,29 @@ const properties = ref<Property[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
+// Hàm xử lý kiểm tra và ghép nối tên miền Backend cho đường dẫn ảnh tương đối
+const getFullImageUrl = (path?: string): string | undefined => {
+  if (!path) return undefined
+  return path.startsWith('/') ? `https://localhost:7023${path}` : path
+}
+
 onMounted(async () => {
   try {
     const response = await propertyService.getAllProperties()
-    properties.value = response.data || response
-  } catch {
+
+    // Ép kiểu tường minh theo cấu trúc phản hồi để vượt qua kiểm tra ESLint (Nói không với any)
+    const rawData = (response as { data?: Property[] }).data || (response as Property[])
+
+    if (Array.isArray(rawData)) {
+      properties.value = rawData.map((item: Property) => ({
+        ...item,
+        imageUrl: getFullImageUrl(item.imageUrl),
+      }))
+    } else {
+      properties.value = []
+    }
+  } catch (err) {
+    console.error('Lỗi tải danh sách căn hộ:', err)
     error.value = 'Không thể tải dữ liệu nhà đất. Vui lòng thử lại sau.'
   } finally {
     isLoading.value = false
