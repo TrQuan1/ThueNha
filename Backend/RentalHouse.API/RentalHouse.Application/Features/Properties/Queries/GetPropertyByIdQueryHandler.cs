@@ -27,7 +27,9 @@ public class GetPropertyByIdQueryHandler : IRequestHandler<GetPropertyByIdQuery,
             Description = property.Description,
             Address = property.Address,
             PricePerNight = property.PricePerNight,
-            MaxGuests = property.MaxGuests
+            MaxGuests = property.MaxGuests,
+            // Lấy link bức ảnh đầu tiên (nếu có)
+            ImageUrl = property.Images?.FirstOrDefault()?.ImageUrl
         };
     }
 }

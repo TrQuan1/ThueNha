@@ -15,10 +15,9 @@ public class GetPropertiesQueryHandler : IRequestHandler<GetPropertiesQuery, IEn
 
     public async Task<IEnumerable<PropertyDto>> Handle(GetPropertiesQuery request, CancellationToken cancellationToken)
     {
-        // Lấy toàn bộ danh sách nhà từ DB (Repository đã tự động áp dụng Soft Delete Filter)
+        // GỌI LẠI GetAllAsync() BÌNH THƯỜNG
         var properties = await _propertyRepository.GetAllAsync();
 
-        // Map (chuyển đổi) từ Entity sang DTO để trả về cho Frontend
         return properties.Select(p => new PropertyDto
         {
             Id = p.Id,
@@ -27,7 +26,8 @@ public class GetPropertiesQueryHandler : IRequestHandler<GetPropertiesQuery, IEn
             Description = p.Description,
             Address = p.Address,
             PricePerNight = p.PricePerNight,
-            MaxGuests = p.MaxGuests
+            MaxGuests = p.MaxGuests,
+            ImageUrl = p.Images?.FirstOrDefault()?.ImageUrl
         });
     }
 }

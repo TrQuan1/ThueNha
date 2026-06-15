@@ -9,4 +9,7 @@ public class PropertyDto
     public string Address { get; set; } = string.Empty;
     public decimal PricePerNight { get; set; }
     public int MaxGuests { get; set; }
+
+    // THÊM DÒNG NÀY ĐỂ TRẢ VỀ ẢNH ĐẠI DIỆN
+    public string? ImageUrl { get; set; }
 }
