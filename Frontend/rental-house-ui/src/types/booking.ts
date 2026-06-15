@@ -7,11 +7,11 @@ export interface CreateBookingRequest {
 }
 
 export interface BookingResponse {
-  id: string
-  propertyId: string
-  tenantId: string
+  id: number
+  propertyId: number
+  tenantId: number
   checkInDate: string
   checkOutDate: string
   totalPrice: number
-  status: string
+  status: number
 }

@@ -23,6 +23,11 @@ const router = createRouter({
           name: 'property-create',
           component: () => import('@/views/properties/CreatePropertyView.vue'),
         },
+        {
+          path: 'host/bookings',
+          name: 'host-bookings',
+          component: () => import('@/views/properties/HostBookingsView.vue'),
+        },
       ],
     },
   ],
