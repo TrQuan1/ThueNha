@@ -5,7 +5,7 @@ import MainLayout from '@/layouts/MainLayout.vue'
 declare module 'vue-router' {
   interface RouteMeta {
     requiresAuth?: boolean
-    allowedRoles?: number[]
+    allowedRoles?: string[] // ĐÃ ĐỔI THÀNH MẢNG CHUỖI
   }
 }
 
@@ -30,44 +30,42 @@ const router = createRouter({
           path: 'host/properties/create',
           name: 'property-create',
           component: () => import('@/views/properties/CreatePropertyView.vue'),
-          meta: { requiresAuth: true, allowedRoles: [2] },
+          meta: { requiresAuth: true, allowedRoles: ['Host'] },
         },
         {
           path: 'host/bookings',
           name: 'host-bookings',
-          component: () => import('@/views/properties/HostBookingsView.vue'),
-          meta: { requiresAuth: true, allowedRoles: [2] },
+          component: () => import('@/views/bookings/HostBookingsView.vue'),
+          meta: { requiresAuth: true, allowedRoles: ['Host'] },
         },
         {
           path: 'my-bookings',
           name: 'my-bookings',
-          component: () => import('@/views/properties/TenantBookingsView.vue'),
-          meta: { requiresAuth: true, allowedRoles: [3] },
+          component: () => import('@/views/bookings/TenantBookingsView.vue'),
+          meta: { requiresAuth: true, allowedRoles: ['Tenant'] },
         },
       ],
     },
   ],
 })
 
-// Global Before Guard xử lý phân quyền theo chuẩn Vue Router 4 (bỏ hoàn toàn callback next)
+// Global Before Guard - Sạch sẽ và không còn tham số next()
 router.beforeEach((to) => {
   const token = localStorage.getItem('token')
   const userStr = localStorage.getItem('user')
 
-  // 1. Kiểm tra nếu trang yêu cầu quyền đăng nhập
   if (to.meta.requiresAuth) {
     if (!token || !userStr) {
       alert('Vui lòng đăng nhập để tiếp tục.')
       return '/'
     }
 
-    // 2. Kiểm tra danh sách quyền được phép truy cập (allowedRoles)
     if (to.meta.allowedRoles && to.meta.allowedRoles.length > 0) {
       try {
-        const user = JSON.parse(userStr) as { role: string | number }
-        const userRole = Number(user.role)
+        const user = JSON.parse(userStr) as { role: string }
 
-        if (!to.meta.allowedRoles.includes(userRole)) {
+        // Kiểm tra xem Role chữ (Host/Tenant) của user có nằm trong danh sách cho phép không
+        if (!to.meta.allowedRoles.includes(user.role)) {
           alert('Bạn không có quyền truy cập trang này.')
           return '/'
         }
@@ -78,7 +76,6 @@ router.beforeEach((to) => {
     }
   }
 
-  // Cho phép điều hướng đi tiếp hợp lệ
   return true
 })
 

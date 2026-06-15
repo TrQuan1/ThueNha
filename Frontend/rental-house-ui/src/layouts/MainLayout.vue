@@ -7,15 +7,34 @@
         <router-link to="/">RentalHouse</router-link>
       </div>
 
-      <div class="flex items-center gap-3 sm:gap-5">
-        <router-link
-          v-if="authStore.isAuthenticated && authStore.user?.role === 'Host'"
-          :to="{ name: 'property-create' }"
-          class="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl font-semibold transition-colors shadow-sm cursor-pointer"
-        >
-          <span class="text-lg">🏠</span>
-          <span class="hidden sm:inline">Đăng tin mới</span>
-        </router-link>
+      <div class="flex items-center gap-4 sm:gap-6">
+        <template v-if="authStore.isAuthenticated">
+          <template v-if="authStore.user?.role === 'Host'">
+            <router-link
+              :to="{ name: 'host-bookings' }"
+              class="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              Quản lý yêu cầu
+            </router-link>
+
+            <router-link
+              :to="{ name: 'property-create' }"
+              class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-colors shadow-sm cursor-pointer"
+            >
+              <span class="text-lg">🏠</span>
+              <span class="hidden sm:inline">Đăng tin mới</span>
+            </router-link>
+          </template>
+
+          <template v-else-if="authStore.user?.role === 'Tenant'">
+            <router-link
+              :to="{ name: 'my-bookings' }"
+              class="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              Chuyến đi của tôi
+            </router-link>
+          </template>
+        </template>
 
         <template v-if="!authStore.isAuthenticated">
           <button
@@ -54,14 +73,16 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterView, RouterLink } from 'vue-router'
+import { RouterView, RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth.store'
 import AuthModal from '../components/common/AuthModal.vue'
 
+const router = useRouter()
 const authStore = useAuthStore()
 const isAuthModalOpen = ref(false)
 
-const handleLogout = () => {
+const handleLogout = async () => {
   authStore.logout()
+  await router.push('/')
 }
 </script>
