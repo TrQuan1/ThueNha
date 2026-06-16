@@ -10,7 +10,7 @@
     <div class="mb-6 flex gap-4">
       <input
         v-model="searchQuery"
-        @input="loadUsers"
+        @input="handleSearchInput"
         placeholder="Tìm kiếm theo tên hoặc email..."
         class="w-full md:w-1/3 p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
       />
@@ -37,7 +37,13 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr v-for="user in users" :key="user.id" class="hover:bg-gray-50 transition">
+          <tr v-if="users.length === 0">
+            <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500 font-medium">
+              Không tìm thấy người dùng nào phù hợp với từ khóa.
+            </td>
+          </tr>
+
+          <tr v-else v-for="user in users" :key="user.id" class="hover:bg-gray-50 transition">
             <td class="px-6 py-4 text-sm text-gray-900">{{ user.id }}</td>
             <td class="px-6 py-4 text-sm text-gray-900 font-medium">{{ user.fullName }}</td>
             <td class="px-6 py-4 text-sm text-gray-600">{{ user.email }}</td>
@@ -85,9 +91,22 @@ const users = ref<User[]>([])
 const searchQuery = ref('')
 const isLoading = ref(false)
 
-// Logic chuyển đổi số sang chữ (Dựa trên Enum của bạn)
+// Biến quản lý bộ đếm thời gian hoãn (Debounce)
+let searchTimeout: ReturnType<typeof setTimeout> | null = null
+
+// Hàm điều hướng tìm kiếm, ngăn chặn spam gọi API liên tục
+const handleSearchInput = () => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+  // Đợi người dùng dừng gõ phím đúng 500ms rồi mới kích hoạt tải dữ liệu
+  searchTimeout = setTimeout(() => {
+    loadUsers()
+  }, 500)
+}
+
+// Logic chuyển đổi số sang chữ (Đồng bộ chặt chẽ với Enum số nguyên từ Backend)
 const getStatusText = (status: number) => {
-  // Thay đổi các con số (1, 2) cho khớp với Enum UserStatus bên Backend của bạn
   const statusMap: Record<number, string> = {
     1: 'Active',
     2: 'Banned',
@@ -96,7 +115,6 @@ const getStatusText = (status: number) => {
 }
 
 const getRoleText = (role: number) => {
-  // Thay đổi các con số (1, 2, 3) cho khớp với Enum Role bên Backend của bạn
   const roleMap: Record<number, string> = {
     1: 'Admin',
     2: 'Host',
