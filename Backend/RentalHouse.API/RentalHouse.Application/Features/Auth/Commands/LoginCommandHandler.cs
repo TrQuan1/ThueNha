@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using RentalHouse.Application.DTOs.Auth;
 using RentalHouse.Application.Interfaces;
+using RentalHouse.Domain.Enums;
 
 namespace RentalHouse.Application.Features.Auth.Commands;
 
@@ -29,6 +30,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponseDto
         var user = await _userRepository.GetByEmailAsync(request.Email);
         if (user == null)
             throw new UnauthorizedAccessException("Tài khoản hoặc mật khẩu không chính xác.");
+        // logic kiểm tra khóa
+        if (user.Status == UserStatus.Banned)
+        {
+            // Ném ra một lỗi để Frontend nhận được và hiển thị thông báo
+            throw new Exception("Tài khoản của bạn đã bị quản trị viên khóa.");
+        }
 
         // 2. Đối chiếu mật khẩu người dùng nhập với mã Hash trong Database
         if (!_passwordHasher.VerifyPassword(request.Password, user.PasswordHash))
