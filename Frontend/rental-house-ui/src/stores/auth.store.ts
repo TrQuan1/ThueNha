@@ -34,9 +34,17 @@ export const useAuthStore = defineStore('auth', {
         const response = await AuthService.login(credentials)
         this.setAuthData(response)
       } catch (error: unknown) {
-        if (error instanceof Error) {
+        // 1. Ép kiểu an toàn để kiểm tra xem lỗi có phản hồi từ Backend không
+        const err = error as { response?: { data?: { error?: string } } }
+
+        if (err.response?.data?.error) {
+          // 2. Nếu có lỗi từ Backend trả về, lấy chính xác thông báo đó
+          this.error = err.response.data.error
+        } else if (error instanceof Error) {
+          // 3. Nếu là lỗi mạng hoặc lỗi JS thông thường
           this.error = error.message
         } else {
+          // 4. Lỗi không xác định
           this.error = 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin.'
         }
         throw error

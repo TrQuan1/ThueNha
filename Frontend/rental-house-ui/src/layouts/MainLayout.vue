@@ -40,6 +40,10 @@
             >
               <span>🛡️</span> Duyệt tin đăng
             </router-link>
+
+            <router-link to="/admin/users" class="px-3 py-2 text-gray-700 hover:text-blue-600">
+              Quản lý người dùng
+            </router-link>
           </template>
 
           <template v-else-if="authStore.user?.role === 'Tenant'">
