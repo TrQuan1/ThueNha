@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using RentalHouse.Application.Interfaces;
+using RentalHouse.Domain.Entities;
 
 namespace RentalHouse.Application.Features.Properties.Commands;
 
@@ -32,6 +33,15 @@ public class UpdatePropertyCommandHandler : IRequestHandler<UpdatePropertyComman
         property.PricePerNight = request.PricePerNight;
         property.MaxGuests = request.MaxGuests;
 
+
+        property.PropertyFacilities.Clear();
+        if (request.FacilityIds != null && request.FacilityIds.Any())
+        {
+            foreach (var facilityId in request.FacilityIds)
+            {
+                property.PropertyFacilities.Add(new PropertyFacility { FacilityId = facilityId });
+            }
+        }
         _propertyRepository.Update(property);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

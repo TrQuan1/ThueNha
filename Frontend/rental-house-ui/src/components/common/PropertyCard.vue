@@ -14,6 +14,7 @@
       />
 
       <button
+        v-if="authStore.isAuthenticated && authStore.user?.role === 'Tenant'"
         @click.stop.prevent="toggleFavorite"
         class="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors focus:outline-hidden cursor-pointer"
         title="Thêm/Xóa danh sách yêu thích"

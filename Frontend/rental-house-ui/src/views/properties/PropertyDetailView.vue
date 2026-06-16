@@ -9,11 +9,31 @@
     </div>
 
     <div v-else-if="property">
-      <div class="mb-6">
-        <h1 class="text-3xl font-extrabold text-gray-900">{{ property.title }}</h1>
-        <p class="text-gray-600 mt-2 flex items-center gap-2">
-          <span>📍</span> {{ property.address }}
-        </p>
+      <div class="mb-6 flex flex-col sm:flex-row justify-between items-start gap-4">
+        <div>
+          <h1 class="text-3xl font-extrabold text-gray-900">{{ property.title }}</h1>
+          <p class="text-gray-600 mt-2 flex items-center gap-2">
+            <span>📍</span> {{ property.address }}
+          </p>
+        </div>
+
+        <div
+          v-if="authStore.isAuthenticated && authStore.user?.userId === property.hostId"
+          class="flex items-center gap-2 shrink-0"
+        >
+          <!-- <button
+            @click="goToEdit"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2.5 rounded-xl font-semibold shadow-sm transition cursor-pointer flex items-center gap-2"
+          >
+            <span>✏️</span> Sửa tin
+          </button> -->
+          <button
+            @click="handleDelete"
+            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-xl font-semibold shadow-sm transition cursor-pointer flex items-center gap-2"
+          >
+            <span>🗑️</span> Xóa tin
+          </button>
+        </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -66,8 +86,13 @@
           </div>
         </div>
 
+        <!-- CỘT PHẢI: XỬ LÝ LOGIC ẨN/HIỆN ĐẶT PHÒNG Ở ĐÂY -->
         <div class="lg:col-span-1">
-          <div class="sticky top-24 bg-white p-6 border border-gray-200 rounded-2xl shadow-sm">
+          <!-- NẾU KHÔNG PHẢI CHỦ NHÀ CỦA CĂN NÀY -> HIỆN FORM ĐẶT PHÒNG -->
+          <div
+            v-if="authStore.user?.role === 'Tenant'"
+            class="sticky top-24 bg-white p-6 border border-gray-200 rounded-2xl shadow-sm"
+          >
             <h3 class="text-2xl font-bold text-gray-900 mb-4">
               {{ property.pricePerNight.toLocaleString() }} VND
               <span class="text-base font-normal text-gray-500">/ đêm</span>
@@ -138,6 +163,24 @@
               {{ isBooking ? 'Đang xử lý...' : 'Đặt phòng ngay' }}
             </button>
           </div>
+
+          <!-- NẾU ĐÚNG LÀ CHỦ NHÀ ĐANG XEM NHÀ CỦA MÌNH -> HIỆN BẢNG QUẢN LÝ -->
+          <div
+            v-else
+            class="sticky top-24 bg-blue-50 p-6 border border-blue-200 rounded-2xl shadow-sm text-center"
+          >
+            <div class="text-4xl mb-4">🏠</div>
+            <h3 class="text-xl font-bold text-blue-900 mb-2">Đây là nhà của bạn</h3>
+            <p class="text-sm text-blue-700 mb-6">
+              Bạn có thể quản lý, chỉnh sửa thông tin hoặc xóa bài đăng này.
+            </p>
+            <button
+              @click="goToEdit"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-md cursor-pointer"
+            >
+              Cập nhật tin đăng
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -146,7 +189,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+// CẬP NHẬT: Import thêm useRouter
+import { useRoute, useRouter } from 'vue-router'
 import { propertyService } from '@/services/property.service'
 import { bookingService } from '@/services/booking.service'
 import { useAuthStore } from '@/stores/auth.store'
@@ -154,6 +198,8 @@ import type { Property } from '@/types/property'
 import type { CreateBookingRequest } from '@/types/booking'
 
 const route = useRoute()
+// BỔ SUNG: Khai báo router
+const router = useRouter()
 const authStore = useAuthStore()
 
 // Cấu hình URL Ảnh
@@ -255,6 +301,29 @@ const handleBooking = async () => {
     alert('❌ Không thể đặt phòng: ' + backendError)
   } finally {
     isBooking.value = false
+  }
+}
+
+// BỔ SUNG: Hàm chuyển trang sang Edit
+const goToEdit = () => {
+  if (property.value) {
+    router.push(`/properties/${property.value.id}/edit`)
+  }
+}
+
+// BỔ SUNG: Hàm Xóa bài đăng
+const handleDelete = async () => {
+  if (!property.value) return
+
+  if (confirm('Bạn có chắc chắn muốn xóa bài đăng này không? Thao tác này không thể hoàn tác.')) {
+    try {
+      await propertyService.deleteProperty(property.value.id)
+      alert('Đã xóa tin đăng thành công!')
+      router.push('/') // Xóa xong thì đẩy về trang chủ
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
+      alert(err.response?.data?.message || 'Có lỗi xảy ra khi xóa bài đăng. Vui lòng thử lại.')
+    }
   }
 }
 </script>

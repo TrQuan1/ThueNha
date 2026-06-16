@@ -36,7 +36,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             throw new Exception("Ngày Check-out phải lớn hơn ngày Check-in.");
 
         var property = await _propertyRepository.GetByIdAsync(request.PropertyId);
-        if (property == null) throw new Exception("Không tìm thấy căn nhà này.");
+        if (property == null) throw new Exception("Không tìm thấy căn nhà này.");    
 
         // 2. Validate: Trạng thái nhà
         if (property.Status != PropertyStatus.Active)

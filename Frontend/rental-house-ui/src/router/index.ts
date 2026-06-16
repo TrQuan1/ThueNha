@@ -42,13 +42,19 @@ const router = createRouter({
           path: 'my-bookings',
           name: 'my-bookings',
           component: () => import('@/views/bookings/TenantBookingsView.vue'),
-          meta: { requiresAuth: true, allowedRoles: ['Tenant'] },
+          meta: { requiresAuth: true, allowedRoles: ['Tenant', 'Host'] },
         },
         {
           path: 'wishlist',
           name: 'wishlist',
           component: () => import('@/views/wishlists/WishlistView.vue'),
           meta: { requiresAuth: true, allowedRoles: ['Tenant'] },
+        },
+        {
+          path: 'properties/:id/edit',
+          name: 'property-edit',
+          component: () => import('@/views/properties/EditPropertyView.vue'),
+          meta: { requiresAuth: true, allowedRoles: ['Host'] }, // Chỉ Host mới được vào trang sửa
         },
       ],
     },
