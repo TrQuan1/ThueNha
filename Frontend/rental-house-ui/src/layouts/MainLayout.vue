@@ -28,6 +28,13 @@
 
           <template v-else-if="authStore.user?.role === 'Tenant'">
             <router-link
+              :to="{ name: 'wishlist' }"
+              class="text-sm font-semibold text-gray-600 hover:text-red-500 transition-colors flex items-center gap-1"
+            >
+              <span>❤️</span> Yêu thích
+            </router-link>
+
+            <router-link
               :to="{ name: 'my-bookings' }"
               class="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors"
             >
@@ -74,8 +81,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterView, RouterLink, useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth.store'
-import AuthModal from '../components/common/AuthModal.vue'
+import { useAuthStore } from '@/stores/auth.store'
+import AuthModal from '@/components/common/AuthModal.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

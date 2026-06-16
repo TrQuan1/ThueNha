@@ -44,6 +44,12 @@ const router = createRouter({
           component: () => import('@/views/bookings/TenantBookingsView.vue'),
           meta: { requiresAuth: true, allowedRoles: ['Tenant'] },
         },
+        {
+          path: 'wishlist',
+          name: 'wishlist',
+          component: () => import('@/views/wishlists/WishlistView.vue'),
+          meta: { requiresAuth: true, allowedRoles: ['Tenant'] },
+        },
       ],
     },
   ],
