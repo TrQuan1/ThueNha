@@ -20,10 +20,24 @@ export interface RegisterRequest {
   password?: string
   role: number
 }
+
 export interface User {
   id: number | string
   fullName: string
   email: string
   role: number // Đổi sang number
   status: number // Đổi sang number
+}
+
+export interface ProfileDto {
+  id: number
+  fullName: string
+  email: string
+  phoneNumber: string | null
+  role: number
+}
+
+export interface UpdateProfilePayload {
+  fullName: string
+  phoneNumber: string
 }

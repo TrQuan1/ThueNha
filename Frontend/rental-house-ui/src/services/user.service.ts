@@ -1,5 +1,6 @@
 import apiClient from '@/services/api.client'
-import type { User } from '@/types/auth' // Giả định đã có interface User
+import type { User } from '@/types/auth'
+import type { ProfileDto, UpdateProfilePayload } from '@/types/auth'
 
 export const userService = {
   async getUsers(search?: string): Promise<User[]> {
@@ -11,5 +12,13 @@ export const userService = {
   },
   async unbanUser(id: number | string): Promise<void> {
     await apiClient.put(`/admin/users/${id}/unban`)
+  },
+  async getProfile(): Promise<ProfileDto> {
+    const response = await apiClient.get<ProfileDto>('/account/profile')
+    return response.data
+  },
+
+  async updateProfile(data: UpdateProfilePayload): Promise<void> {
+    await apiClient.put('/account/profile', data)
   },
 }

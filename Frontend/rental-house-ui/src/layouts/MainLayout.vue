@@ -41,8 +41,11 @@
               <span>🛡️</span> Duyệt tin đăng
             </router-link>
 
-            <router-link to="/admin/users" class="px-3 py-2 text-gray-700 hover:text-blue-600">
-              Quản lý người dùng
+            <router-link
+              to="/admin/users"
+              class="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+            >
+              <span>👥</span> Quản lý người dùng
             </router-link>
           </template>
 
@@ -73,9 +76,17 @@
         </template>
 
         <template v-else>
-          <span class="font-medium text-gray-700 hidden sm:block">
-            Xin chào, <span class="font-bold text-gray-900">{{ authStore.user?.name }}</span>
-          </span>
+          <router-link
+            to="/account/profile"
+            class="font-medium text-gray-700 hover:text-blue-600 transition-colors hidden sm:flex items-center cursor-pointer group"
+          >
+            <span class="mr-2 text-xl group-hover:scale-110 transition-transform"></span>
+            Xin chào,
+            <span class="font-bold text-gray-900 group-hover:text-blue-600 ml-1">{{
+              authStore.user?.name
+            }}</span>
+          </router-link>
+
           <button
             class="text-red-500 border border-red-500 hover:bg-red-50 px-4 py-2.5 rounded-xl font-semibold transition-colors cursor-pointer"
             @click="handleLogout"

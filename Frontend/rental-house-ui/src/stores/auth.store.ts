@@ -84,6 +84,14 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('user', JSON.stringify(this.user))
     },
 
+    updateCurrentUser(fullName: string) {
+      if (this.user) {
+        // Cập nhật thuộc tính chứa tên (VD: name hoặc fullName tùy interface bạn đang dùng cho user object)
+        this.user.name = fullName
+        localStorage.setItem('user', JSON.stringify(this.user))
+      }
+    },
+
     logout() {
       this.user = null
       this.token = null

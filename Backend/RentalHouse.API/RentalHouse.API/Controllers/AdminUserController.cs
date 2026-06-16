@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalHouse.Domain.Constants;
+using RentalHouse.Application.Features.Users.Commands;
+using RentalHouse.Application.Features.Users.Queries;
 
 [Route("api/admin/users")]
 [ApiController]
