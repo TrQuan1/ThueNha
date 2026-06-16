@@ -30,9 +30,9 @@ public class GetPropertyByIdQueryHandler : IRequestHandler<GetPropertyByIdQuery,
             PricePerNight = property.PricePerNight,
             MaxGuests = property.MaxGuests,
             // Lấy link bức ảnh đầu tiên (nếu có)
-            ImageUrl = property.Images?.FirstOrDefault()?.ImageUrl,
+            ImageUrl = property.Images?.OrderByDescending(img => img.Id).FirstOrDefault()?.ImageUrl,
 
-            
+
             Facilities = property.PropertyFacilities?.Select(pf => new FacilityDto
             {
                 Id = pf.Facility.Id,

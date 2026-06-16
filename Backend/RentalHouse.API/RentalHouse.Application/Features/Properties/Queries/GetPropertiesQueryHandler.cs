@@ -55,7 +55,7 @@ public class GetPropertiesQueryHandler : IRequestHandler<GetPropertiesQuery, Lis
                 Address = p.Address,
                 PricePerNight = p.PricePerNight,
                 MaxGuests = p.MaxGuests,
-                ImageUrl = p.Images?.FirstOrDefault()?.ImageUrl
+                ImageUrl = p.Images?.OrderByDescending(img => img.Id).FirstOrDefault()?.ImageUrl
             })
             .ToList();
 
