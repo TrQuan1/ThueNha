@@ -11,6 +11,13 @@
         <template v-if="authStore.isAuthenticated">
           <template v-if="authStore.user?.role === 'Host'">
             <router-link
+              :to="{ name: 'host-properties' }"
+              class="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+            >
+              <span>🏠</span> Nhà của tôi
+            </router-link>
+
+            <router-link
               :to="{ name: 'host-bookings' }"
               class="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors"
             >
@@ -23,6 +30,15 @@
             >
               <span class="text-lg">🏠</span>
               <span class="hidden sm:inline">Đăng tin mới</span>
+            </router-link>
+          </template>
+
+          <template v-else-if="authStore.user?.role === 'Admin'">
+            <router-link
+              :to="{ name: 'admin-properties' }"
+              class="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+            >
+              <span>🛡️</span> Duyệt tin đăng
             </router-link>
           </template>
 

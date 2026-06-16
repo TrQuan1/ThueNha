@@ -56,6 +56,18 @@ const router = createRouter({
           component: () => import('@/views/properties/EditPropertyView.vue'),
           meta: { requiresAuth: true, allowedRoles: ['Host'] }, // Chỉ Host mới được vào trang sửa
         },
+        {
+          path: 'host/properties',
+          name: 'host-properties',
+          component: () => import('@/views/properties/HostPropertiesView.vue'),
+          meta: { requiresAuth: true, allowedRoles: ['Host'] },
+        },
+        {
+          path: 'admin/properties',
+          name: 'admin-properties',
+          component: () => import('@/views/admin/AdminPropertiesView.vue'),
+          meta: { requiresAuth: true, allowedRoles: ['Admin'] },
+        },
       ],
     },
   ],

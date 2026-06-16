@@ -13,6 +13,7 @@ export interface Property {
   pricePerNight: number
   maxGuests: number
   imageUrl?: string
+  status?: number // 0: Pending, 1: Approved, 2: Rejected
   facilities?: Facility[] // Bổ sung dòng này
 }
 
