@@ -1,4 +1,6 @@
-﻿namespace RentalHouse.Application.DTOs.Properties;
+﻿using RentalHouse.Application.DTOs.Facilities;
+
+namespace RentalHouse.Application.DTOs.Properties;
 
 public class PropertyDto
 {
@@ -12,4 +14,5 @@ public class PropertyDto
 
     // THÊM DÒNG NÀY ĐỂ TRẢ VỀ ẢNH ĐẠI DIỆN
     public string? ImageUrl { get; set; }
+    public List<FacilityDto> Facilities { get; set; } = new();
 }

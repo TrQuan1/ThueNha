@@ -1,13 +1,13 @@
 <template>
   <div
-    class="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow cursor-pointer flex flex-col relative"
+    class="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl transition-shadow cursor-pointer flex flex-col relative group"
     @click="goToDetail"
   >
-    <div class="relative w-full h-56 bg-gray-200">
+    <div class="relative w-full h-56 bg-gray-200 overflow-hidden">
       <img
         :src="getFullImageUrl(property.imageUrl)"
         :alt="property.title"
-        class="w-full h-full object-cover"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         @error="
           (e) => ((e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=No+Image')
         "
@@ -16,7 +16,7 @@
       <button
         @click.stop.prevent="toggleFavorite"
         class="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors focus:outline-hidden cursor-pointer"
-        title="Thêm vào danh sách yêu thích"
+        title="Thêm/Xóa danh sách yêu thích"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -41,15 +41,23 @@
       <h3 class="font-bold text-lg text-gray-900 truncate mb-1" :title="property.title">
         {{ property.title }}
       </h3>
-      <p class="text-sm text-gray-500 truncate mb-4">📍 {{ property.address }}</p>
-      <div class="mt-auto flex justify-between items-end">
+      <p class="text-sm text-gray-500 truncate mb-2">📍 {{ property.address }}</p>
+
+      <p v-if="property.maxGuests" class="text-xs font-medium text-gray-500 mb-4">
+        👥 Sức chứa: Tối đa {{ property.maxGuests }} khách
+      </p>
+
+      <div class="mt-auto flex justify-between items-center border-t border-gray-100 pt-4">
         <p class="text-blue-600 font-extrabold text-lg">
           {{ property.pricePerNight.toLocaleString() }}
           <span class="text-sm font-normal text-gray-500">VND/đêm</span>
         </p>
-        <p class="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded-md">
-          Tối đa {{ property.maxGuests }} khách
-        </p>
+
+        <button
+          class="shrink-0 bg-gray-900 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+        >
+          Xem chi tiết
+        </button>
       </div>
     </div>
   </div>

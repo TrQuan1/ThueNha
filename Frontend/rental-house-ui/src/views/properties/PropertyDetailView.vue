@@ -33,6 +33,30 @@
         </div>
       </div>
 
+      <div
+        v-if="property.facilities && property.facilities.length > 0"
+        class="mt-10 pt-8 border-t border-gray-200"
+      >
+        <h3 class="text-2xl font-bold text-gray-900 mb-6">Nơi này có những gì cho bạn</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
+          <div
+            v-for="facility in property.facilities"
+            :key="facility.id"
+            class="flex items-center gap-4 text-gray-700"
+          >
+            <div class="w-8 h-8 flex items-center justify-center text-gray-600">
+              <span
+                v-if="facility.icon"
+                v-html="facility.icon"
+                class="w-full h-full flex items-center justify-center"
+              ></span>
+              <span v-else class="text-xl">✨</span>
+            </div>
+            <span class="text-lg font-medium">{{ facility.name }}</span>
+          </div>
+        </div>
+      </div>
+
       <div class="lg:col-span-1">
         <div class="sticky top-24 bg-white p-6 border border-gray-200 rounded-2xl shadow-xl">
           <h3 class="text-2xl font-bold text-gray-900 mb-4">

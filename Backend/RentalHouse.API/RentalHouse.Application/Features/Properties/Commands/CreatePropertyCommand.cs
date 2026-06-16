@@ -11,4 +11,5 @@ public class CreatePropertyCommand : IRequest<PropertyDto>
     public string Address { get; set; } = string.Empty;
     public decimal PricePerNight { get; set; }
     public int MaxGuests { get; set; }
+    public List<int> FacilityIds { get; set; } = new();
 }
