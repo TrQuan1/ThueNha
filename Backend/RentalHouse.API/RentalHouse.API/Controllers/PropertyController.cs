@@ -19,6 +19,30 @@ public class PropertyController : ControllerBase
         _mediator = mediator;
     }
 
+    [HttpGet("my-properties")]
+    [Authorize(Roles = AppRoles.Host)]
+    public async Task<IActionResult> GetMyProperties()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("sub");
+
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Không thể xác định danh tính người dùng." });
+            }
+
+            var query = new GetMyPropertiesQuery { UserId = userId };
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     // Đã di chuyển hàm vào bên trong class và gắn [FromQuery] hợp lệ
     [HttpGet]
     [AllowAnonymous]

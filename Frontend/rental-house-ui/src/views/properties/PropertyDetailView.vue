@@ -88,9 +88,25 @@
 
         <!-- CỘT PHẢI: XỬ LÝ LOGIC ẨN/HIỆN ĐẶT PHÒNG Ở ĐÂY -->
         <div class="lg:col-span-1">
-          <!-- NẾU KHÔNG PHẢI CHỦ NHÀ CỦA CĂN NÀY -> HIỆN FORM ĐẶT PHÒNG -->
           <div
-            v-if="authStore.user?.role === 'Tenant'"
+            v-if="authStore.isAuthenticated && authStore.user?.userId === property.hostId"
+            class="sticky top-24 bg-blue-50 p-6 border border-blue-200 rounded-2xl shadow-sm text-center"
+          >
+            <div class="text-4xl mb-4">🏠</div>
+            <h3 class="text-xl font-bold text-blue-900 mb-2">Đây là nhà của bạn</h3>
+            <p class="text-sm text-blue-700 mb-6">
+              Bạn có thể quản lý, chỉnh sửa thông tin hoặc xóa bài đăng này.
+            </p>
+            <button
+              @click="goToEdit"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-md cursor-pointer"
+            >
+              Cập nhật tin đăng
+            </button>
+          </div>
+
+          <div
+            v-else-if="!authStore.isAuthenticated || authStore.user?.role === 'Tenant'"
             class="sticky top-24 bg-white p-6 border border-gray-200 rounded-2xl shadow-sm"
           >
             <h3 class="text-2xl font-bold text-gray-900 mb-4">
@@ -164,22 +180,16 @@
             </button>
           </div>
 
-          <!-- NẾU ĐÚNG LÀ CHỦ NHÀ ĐANG XEM NHÀ CỦA MÌNH -> HIỆN BẢNG QUẢN LÝ -->
           <div
             v-else
-            class="sticky top-24 bg-blue-50 p-6 border border-blue-200 rounded-2xl shadow-sm text-center"
+            class="sticky top-24 bg-gray-50 p-6 border border-gray-200 rounded-2xl shadow-sm text-center"
           >
-            <div class="text-4xl mb-4">🏠</div>
-            <h3 class="text-xl font-bold text-blue-900 mb-2">Đây là nhà của bạn</h3>
-            <p class="text-sm text-blue-700 mb-6">
-              Bạn có thể quản lý, chỉnh sửa thông tin hoặc xóa bài đăng này.
+            <div class="text-4xl mb-4">⚠️</div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Chức năng đặt phòng</h3>
+            <p class="text-sm text-gray-600">
+              Bạn đang dùng tài khoản <strong>Chủ nhà</strong>. Vui lòng đăng nhập bằng tài khoản
+              <strong>Khách thuê</strong> để thực hiện đặt phòng.
             </p>
-            <button
-              @click="goToEdit"
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-md cursor-pointer"
-            >
-              Cập nhật tin đăng
-            </button>
           </div>
         </div>
       </div>

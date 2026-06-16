@@ -26,6 +26,27 @@ export const propertyService = {
     await apiClient.delete(`/properties/${id}`)
   },
 
+  async getMyProperties(): Promise<Property[]> {
+    const response = await apiClient.get<Property[]>('/properties/my-properties')
+    return response.data
+  },
+
+  // --- ADMIN API ---
+  async getPendingProperties(): Promise<Property[]> {
+    const response = await apiClient.get<Property[]>('/admin/properties/pending')
+    return response.data
+  },
+
+  async approveProperty(id: string | number): Promise<void> {
+    await apiClient.put(`/admin/properties/${id}/approve`)
+  },
+
+  async rejectProperty(id: string | number, reason: string): Promise<void> {
+    await apiClient.put(`/admin/properties/${id}/reject`, { reason })
+  },
+
+  // ---------------------------------
+
   async uploadImages(propertyId: number | string, files: File[]): Promise<unknown> {
     const formData = new FormData()
     files.forEach((file) => {
