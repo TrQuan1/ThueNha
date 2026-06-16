@@ -27,5 +27,5 @@ export interface CreatePropertyRequest {
   address: string
   pricePerNight: number
   maxGuests: number
-  facilityIds?: (number | string)[] // Bổ sung dòng này
+  facilityIds: number[]
 }
