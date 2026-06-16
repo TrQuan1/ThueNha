@@ -20,10 +20,8 @@ public class GetMyWishlistQueryHandler : IRequestHandler<GetMyWishlistQuery, IEn
 
     public async Task<IEnumerable<PropertyDto>> Handle(GetMyWishlistQuery request, CancellationToken cancellationToken)
     {
-        // Lấy thẳng danh sách Entity Property ra từ Repository
         var properties = await _wishlistRepository.GetWishlistPropertiesByTenantAsync(request.TenantId);
 
-        // Map sang DTO
         return properties.Select(p => new PropertyDto
         {
             Id = p.Id,
@@ -32,7 +30,8 @@ public class GetMyWishlistQueryHandler : IRequestHandler<GetMyWishlistQuery, IEn
             Description = p.Description,
             Address = p.Address,
             PricePerNight = p.PricePerNight,
-            MaxGuests = p.MaxGuests
+            MaxGuests = p.MaxGuests,
+            ImageUrl = p.Images?.Select(i => i.ImageUrl).FirstOrDefault() // Lấy URL bức ảnh đầu tiên
         });
     }
 }

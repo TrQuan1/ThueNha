@@ -5,7 +5,6 @@ using RentalHouse.Infrastructure.Data;
 
 namespace RentalHouse.Infrastructure.Repositories;
 
-// KHÔNG kế thừa GenericRepository<Wishlist> nữa
 public class WishlistRepository : IWishlistRepository
 {
     private readonly ApplicationDbContext _context;
@@ -17,12 +16,15 @@ public class WishlistRepository : IWishlistRepository
 
     public async Task<bool> ExistsAsync(int tenantId, int propertyId)
     {
-        return await _context.Wishlists.AnyAsync(w => w.TenantId == tenantId && w.PropertyId == propertyId);
+        // Kiểm tra xem căn nhà đã có trong Wishlist chưa
+        return await _context.Wishlists
+            .AnyAsync(w => w.TenantId == tenantId && w.PropertyId == propertyId);
     }
 
     public async Task<Wishlist?> GetWishlistItemAsync(int tenantId, int propertyId)
     {
-        return await _context.Wishlists.FirstOrDefaultAsync(w => w.TenantId == tenantId && w.PropertyId == propertyId);
+        return await _context.Wishlists
+            .FirstOrDefaultAsync(w => w.TenantId == tenantId && w.PropertyId == propertyId);
     }
 
     public async Task<IEnumerable<Property>> GetWishlistPropertiesByTenantAsync(int tenantId)
@@ -30,7 +32,9 @@ public class WishlistRepository : IWishlistRepository
         return await _context.Wishlists
             .Where(w => w.TenantId == tenantId)
             .Include(w => w.Property)
+                .ThenInclude(p => p.Images) // Kéo theo danh sách hình ảnh để Frontend hiển thị
             .Select(w => w.Property!)
+            .Where(p => !p.IsDeleted) // Chỉ kiểm tra IsDeleted trên bảng Property (Căn nhà)
             .ToListAsync();
     }
 
@@ -39,6 +43,7 @@ public class WishlistRepository : IWishlistRepository
         await _context.Wishlists.AddAsync(wishlist);
     }
 
+    // ĐỔI TÊN HÀM TỪ Remove THÀNH Delete ĐỂ KHỚP VỚI INTERFACE
     public void Delete(Wishlist wishlist)
     {
         _context.Wishlists.Remove(wishlist);

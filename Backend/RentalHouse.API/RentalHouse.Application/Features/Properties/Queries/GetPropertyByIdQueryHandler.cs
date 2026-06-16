@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using RentalHouse.Application.DTOs.Properties;
+using RentalHouse.Application.DTOs.Facilities; // BỔ SUNG: Import thư mục chứa FacilityDto
 using RentalHouse.Application.Interfaces;
 
 namespace RentalHouse.Application.Features.Properties.Queries;
@@ -29,7 +30,15 @@ public class GetPropertyByIdQueryHandler : IRequestHandler<GetPropertyByIdQuery,
             PricePerNight = property.PricePerNight,
             MaxGuests = property.MaxGuests,
             // Lấy link bức ảnh đầu tiên (nếu có)
-            ImageUrl = property.Images?.FirstOrDefault()?.ImageUrl
+            ImageUrl = property.Images?.FirstOrDefault()?.ImageUrl,
+
+            
+            Facilities = property.PropertyFacilities?.Select(pf => new FacilityDto
+            {
+                Id = pf.Facility.Id,
+                Name = pf.Facility.Name,
+                Icon = pf.Facility.Icon
+            }).ToList() ?? new List<FacilityDto>()
         };
     }
 }

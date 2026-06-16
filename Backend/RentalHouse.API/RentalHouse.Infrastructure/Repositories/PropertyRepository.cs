@@ -13,6 +13,7 @@ public class PropertyRepository : GenericRepository<Property>, IPropertyReposito
     {
         return await _dbSet
             .Include(p => p.Images)
+            .Include(p => p.PropertyFacilities).ThenInclude(pf => pf.Facility)
             .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
     }
 

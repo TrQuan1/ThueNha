@@ -27,9 +27,21 @@ public class CreatePropertyCommandHandler : IRequestHandler<CreatePropertyComman
             Address = request.Address,
             PricePerNight = request.PricePerNight,
             MaxGuests = request.MaxGuests,
-            Status = PropertyStatus.Pending // Mặc định chờ duyệt
+            Status = PropertyStatus.Pending
         };
 
+        // THÊM LOGIC TIỆN ÍCH Ở ĐÂY:
+        // Khởi tạo danh sách PropertyFacilities ngay lập tức. 
+        // EF Core sẽ tự động liên kết PropertyId sau khi lưu vào database.
+        if (request.FacilityIds != null && request.FacilityIds.Any())
+        {
+            property.PropertyFacilities = request.FacilityIds.Select(facilityId => new PropertyFacility
+            {
+                FacilityId = facilityId
+            }).ToList();
+        }
+
+        // Gọi AddAsync 1 lần duy nhất, EF Core sẽ tự động thêm cả Property và PropertyFacilities vào DB.
         await _propertyRepository.AddAsync(property);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
