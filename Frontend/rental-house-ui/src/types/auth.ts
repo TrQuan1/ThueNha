@@ -20,3 +20,10 @@ export interface RegisterRequest {
   password?: string
   role: number
 }
+export interface User {
+  id: number | string
+  fullName: string
+  email: string
+  role: number // Đổi sang number
+  status: number // Đổi sang number
+}
