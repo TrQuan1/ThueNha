@@ -1,13 +1,5 @@
 import apiClient from './api.client'
-import type { Property, PropertyFilterParams } from '@/types/property'
-
-export interface CreatePropertyRequest {
-  title: string
-  description: string
-  address: string
-  pricePerNight: number
-  maxGuests: number
-}
+import type { Property, PropertyFilterParams, CreatePropertyRequest } from '@/types/property'
 
 export const propertyService = {
   // Thay thế getAllProperties bằng getProperties có hỗ trợ filter

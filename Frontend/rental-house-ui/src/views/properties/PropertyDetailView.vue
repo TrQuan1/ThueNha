@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-7xl mx-auto py-8">
+  <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <div v-if="isLoading" class="text-center py-20 text-gray-500">
       Đang tải thông tin chi tiết...
     </div>
@@ -8,124 +8,136 @@
       {{ error }}
     </div>
 
-    <div v-else-if="property" class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-      <div class="lg:col-span-2 space-y-8">
-        <div>
-          <h1 class="text-3xl font-extrabold text-gray-900">{{ property.title }}</h1>
-          <p class="text-gray-600 mt-2">📍 {{ property.address }}</p>
-        </div>
-
-        <div class="w-full h-100 overflow-hidden rounded-2xl bg-gray-200">
-          <img
-            :src="getFullImageUrl(property.imageUrl)"
-            :alt="property.title"
-            class="w-full h-full object-cover"
-            @error="
-              (e) =>
-                ((e.target as HTMLImageElement).src = 'https://placehold.co/800x400?text=No+Image')
-            "
-          />
-        </div>
-
-        <div class="prose max-w-none text-gray-700">
-          <h3 class="text-xl font-bold text-gray-900 mb-3">Mô tả</h3>
-          <p class="whitespace-pre-line">{{ property.description }}</p>
-        </div>
+    <div v-else-if="property">
+      <div class="mb-6">
+        <h1 class="text-3xl font-extrabold text-gray-900">{{ property.title }}</h1>
+        <p class="text-gray-600 mt-2 flex items-center gap-2">
+          <span>📍</span> {{ property.address }}
+        </p>
       </div>
 
-      <div
-        v-if="property.facilities && property.facilities.length > 0"
-        class="mt-10 pt-8 border-t border-gray-200"
-      >
-        <h3 class="text-2xl font-bold text-gray-900 mb-6">Nơi này có những gì cho bạn</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
-          <div
-            v-for="facility in property.facilities"
-            :key="facility.id"
-            class="flex items-center gap-4 text-gray-700"
-          >
-            <div class="w-8 h-8 flex items-center justify-center text-gray-600">
-              <span
-                v-if="facility.icon"
-                v-html="facility.icon"
-                class="w-full h-full flex items-center justify-center"
-              ></span>
-              <span v-else class="text-xl">✨</span>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-8">
+          <div class="w-full h-100 overflow-hidden rounded-2xl bg-gray-200 shadow-sm">
+            <img
+              :src="getFullImageUrl(property.imageUrl)"
+              :alt="property.title"
+              class="w-full h-full object-cover"
+              @error="
+                (e) =>
+                  ((e.target as HTMLImageElement).src =
+                    'https://placehold.co/800x400?text=No+Image')
+              "
+            />
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Mô tả chi tiết</h3>
+            <div class="prose max-w-none text-gray-700">
+              <p class="whitespace-pre-line leading-relaxed">{{ property.description }}</p>
             </div>
-            <span class="text-lg font-medium">{{ facility.name }}</span>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Tiện ích khu vực</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <template v-if="property.facilities && property.facilities.length > 0">
+                <div
+                  v-for="facility in property.facilities"
+                  :key="facility.id"
+                  class="flex items-center gap-3 text-gray-700"
+                >
+                  <span class="text-xl flex items-center justify-center w-6">{{
+                    facility.icon || facility.icon || '✨'
+                  }}</span>
+                  <span class="font-medium">{{ facility.name || facility.name }}</span>
+                </div>
+              </template>
+
+              <template v-else>
+                <div
+                  class="col-span-1 sm:col-span-2 text-gray-500 italic py-2 bg-gray-50 rounded-lg text-center border border-dashed border-gray-200"
+                >
+                  Chủ nhà chưa cập nhật thông tin tiện ích cho căn nhà này.
+                </div>
+              </template>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="lg:col-span-1">
-        <div class="sticky top-24 bg-white p-6 border border-gray-200 rounded-2xl shadow-xl">
-          <h3 class="text-2xl font-bold text-gray-900 mb-4">
-            {{ property.pricePerNight.toLocaleString() }} VND
-            <span class="text-base font-normal text-gray-500">/ đêm</span>
-          </h3>
+        <div class="lg:col-span-1">
+          <div class="sticky top-24 bg-white p-6 border border-gray-200 rounded-2xl shadow-sm">
+            <h3 class="text-2xl font-bold text-gray-900 mb-4">
+              {{ property.pricePerNight.toLocaleString() }} VND
+              <span class="text-base font-normal text-gray-500">/ đêm</span>
+            </h3>
 
-          <div class="space-y-4 mb-6">
-            <div class="flex flex-col">
-              <label class="text-xs font-bold text-gray-700 uppercase mb-1">Nhận phòng</label>
-              <input
-                type="date"
-                v-model="checkInDate"
-                :min="today"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden transition"
-              />
+            <div class="space-y-4 mb-6">
+              <div class="flex flex-col">
+                <label class="text-xs font-bold text-gray-700 uppercase mb-1">Nhận phòng</label>
+                <input
+                  type="date"
+                  v-model="checkInDate"
+                  :min="today"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                />
+              </div>
+
+              <div class="flex flex-col">
+                <label class="text-xs font-bold text-gray-700 uppercase mb-1">Trả phòng</label>
+                <input
+                  type="date"
+                  v-model="checkOutDate"
+                  :min="checkInDate || today"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                />
+              </div>
+
+              <div class="flex flex-col">
+                <label class="text-xs font-bold text-gray-700 uppercase mb-1"
+                  >Số khách (Tối đa: {{ property.maxGuests }})</label
+                >
+                <input
+                  type="number"
+                  v-model.number="guests"
+                  min="1"
+                  :max="property.maxGuests"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                />
+              </div>
             </div>
 
-            <div class="flex flex-col">
-              <label class="text-xs font-bold text-gray-700 uppercase mb-1">Trả phòng</label>
-              <input
-                type="date"
-                v-model="checkOutDate"
-                :min="checkInDate || today"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden transition"
-              />
-            </div>
-
-            <div class="flex flex-col">
-              <label class="text-xs font-bold text-gray-700 uppercase mb-1"
-                >Số khách (Tối đa: {{ property.maxGuests }})</label
+            <div v-if="totalNights > 0" class="border-t border-gray-200 pt-4 mb-4 space-y-3">
+              <div class="flex justify-between text-gray-600">
+                <span
+                  >{{ property.pricePerNight.toLocaleString() }} VND x {{ totalNights }} đêm</span
+                >
+                <span>{{ totalPrice.toLocaleString() }} VND</span>
+              </div>
+              <div
+                class="flex justify-between font-bold text-lg text-gray-900 border-t border-gray-200 pt-3 mt-3"
               >
-              <input
-                type="number"
-                v-model.number="guests"
-                min="1"
-                :max="property.maxGuests"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-hidden transition"
-              />
+                <span>Tổng cộng</span>
+                <span class="text-blue-600">{{ totalPrice.toLocaleString() }} VND</span>
+              </div>
             </div>
-          </div>
 
-          <div v-if="totalNights > 0" class="border-t border-gray-200 pt-4 mb-4 space-y-3">
-            <div class="flex justify-between text-gray-600">
-              <span>{{ property.pricePerNight.toLocaleString() }} VND x {{ totalNights }} đêm</span>
-              <span>{{ totalPrice.toLocaleString() }} VND</span>
-            </div>
             <div
-              class="flex justify-between font-bold text-lg text-gray-900 border-t border-gray-200 pt-3 mt-3"
+              v-if="bookingError"
+              class="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg font-medium text-center"
             >
-              <span>Tổng cộng</span>
-              <span>{{ totalPrice.toLocaleString() }} VND</span>
+              {{ bookingError }}
             </div>
-          </div>
 
-          <div
-            v-if="bookingError"
-            class="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg font-medium text-center"
-          >
-            {{ bookingError }}
+            <button
+              @click="handleBooking"
+              :disabled="isBooking || totalNights <= 0"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition cursor-pointer shadow-md disabled:bg-gray-400 disabled:shadow-none disabled:cursor-not-allowed"
+            >
+              {{ isBooking ? 'Đang xử lý...' : 'Đặt phòng ngay' }}
+            </button>
           </div>
-
-          <button
-            @click="handleBooking"
-            :disabled="isBooking || totalNights <= 0"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition cursor-pointer shadow-md disabled:bg-gray-400 disabled:shadow-none disabled:cursor-not-allowed"
-          >
-            {{ isBooking ? 'Đang xử lý...' : 'Đặt phòng ngay' }}
-          </button>
         </div>
       </div>
     </div>
@@ -235,7 +247,7 @@ const handleBooking = async () => {
     checkOutDate.value = ''
     guests.value = 1
   } catch (error: unknown) {
-    // Ép kiểu an toàn (Safe Type Assertion) thay vì dùng any
+    // Ép kiểu an toàn (Safe Type Assertion)
     const err = error as { response?: { data?: { error?: string } } }
     const backendError = err?.response?.data?.error || 'Có lỗi xảy ra khi gọi API đặt phòng.'
 

@@ -61,7 +61,7 @@
             <label
               v-for="facility in availableFacilities"
               :key="facility.id"
-              class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-blue-50 transition select-none has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50"
+              class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-blue-50 transition select-none has-checked:border-blue-500 has-checked:bg-blue-50"
             >
               <input
                 type="checkbox"
@@ -161,7 +161,7 @@ const formData = reactive<CreatePropertyRequest>({
   address: '',
   pricePerNight: 0,
   maxGuests: 1,
-  facilityIds: [], // Mảng lưu trữ ID các tiện ích được chọn
+  facilityIds: [] as number[], // Mảng lưu trữ ID các tiện ích được chọn
 })
 
 const handleFileChange = (event: Event) => {
