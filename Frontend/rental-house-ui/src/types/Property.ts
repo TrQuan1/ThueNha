@@ -6,6 +6,7 @@ export interface Facility {
 
 export interface Property {
   id: string | number
+  hostId?: string | number
   title: string
   description: string
   address: string
