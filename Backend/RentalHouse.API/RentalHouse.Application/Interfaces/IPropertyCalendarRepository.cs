@@ -7,4 +7,5 @@ public interface IPropertyCalendarRepository : IRepository<PropertyCalendar>
     Task<bool> IsDateRangeAvailableAsync(int propertyId, DateTime checkIn, DateTime checkOut);
     Task MarkDatesAsBookedAsync(int propertyId, DateTime checkIn, DateTime checkOut);
     Task ReleaseDatesAsync(int propertyId, DateTime checkIn, DateTime checkOut);
+    Task<List<string>> GetBookedDatesAsync(int propertyId);
 }

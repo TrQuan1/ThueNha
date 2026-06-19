@@ -39,4 +39,13 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
     }
+    public async Task<IEnumerable<Booking>> GetActiveBookingsForPropertyAsync(int propertyId)
+    {
+        var today = DateTime.UtcNow.Date;
+        return await _dbSet
+            .Where(b => b.PropertyId == propertyId &&
+                       (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Approved) &&
+                       b.CheckOutDate > today)
+            .ToListAsync();
+    }
 }

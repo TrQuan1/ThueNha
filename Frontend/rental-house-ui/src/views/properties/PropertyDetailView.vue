@@ -117,21 +117,29 @@
             <div class="space-y-4 mb-6">
               <div class="flex flex-col">
                 <label class="text-xs font-bold text-gray-700 uppercase mb-1">Nhận phòng</label>
-                <input
-                  type="date"
+                <el-date-picker
                   v-model="checkInDate"
-                  :min="today"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                  type="date"
+                  placeholder="Chọn ngày nhận phòng"
+                  format="DD/MM/YYYY"
+                  value-format="YYYY-MM-DD"
+                  :disabled-date="disabledCheckInDate"
+                  size="large"
+                  style="width: 100%"
                 />
               </div>
 
               <div class="flex flex-col">
                 <label class="text-xs font-bold text-gray-700 uppercase mb-1">Trả phòng</label>
-                <input
-                  type="date"
+                <el-date-picker
                   v-model="checkOutDate"
-                  :min="checkInDate || today"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                  type="date"
+                  placeholder="Chọn ngày trả phòng"
+                  format="DD/MM/YYYY"
+                  value-format="YYYY-MM-DD"
+                  :disabled-date="disabledCheckOutDate"
+                  size="large"
+                  style="width: 100%"
                 />
               </div>
 
@@ -198,8 +206,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-// CẬP NHẬT: Import thêm useRouter
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { propertyService } from '@/services/property.service'
 import { bookingService } from '@/services/booking.service'
@@ -208,7 +215,6 @@ import type { Property } from '@/types/property'
 import type { CreateBookingRequest } from '@/types/booking'
 
 const route = useRoute()
-// BỔ SUNG: Khai báo router
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -230,9 +236,39 @@ const checkOutDate = ref<string>('')
 const guests = ref<number>(1)
 const isBooking = ref(false)
 const bookingError = ref<string | null>(null)
+const bookedDates = ref<string[]>([])
 
-// Lấy ngày hôm nay theo chuẩn YYYY-MM-DD để chặn quá khứ
-const today = new Date().toISOString().split('T')[0]
+// --- LOGIC KHÓA NGÀY (ELEMENT PLUS) ---
+const disabledCheckInDate = (time: Date): boolean => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Khóa các ngày trong quá khứ
+  if (time < today) return true
+
+  // Định dạng ngày đang xét thành YYYY-MM-DD
+  const year = time.getFullYear()
+  const month = String(time.getMonth() + 1).padStart(2, '0')
+  const day = String(time.getDate()).padStart(2, '0')
+  const dateString = `${year}-${month}-${day}`
+
+  // Khóa ngày nếu nó nằm trong danh sách đã được đặt (từ API)
+  return bookedDates.value.includes(dateString)
+}
+
+const disabledCheckOutDate = (time: Date): boolean => {
+  // Trả phòng cũng phải tuân thủ luật của Nhận phòng (bị khóa nếu đã có người thuê)
+  if (disabledCheckInDate(time)) return true
+
+  // Khóa thêm: Ngày trả phòng KHÔNG ĐƯỢC nhỏ hơn hoặc bằng Ngày nhận phòng
+  if (checkInDate.value) {
+    const checkIn = new Date(checkInDate.value)
+    checkIn.setHours(0, 0, 0, 0)
+    if (time <= checkIn) return true
+  }
+
+  return false
+}
 
 // Computed: Tính số đêm
 const totalNights = computed(() => {
@@ -250,11 +286,43 @@ const totalPrice = computed(() => {
   return totalNights.value * property.value.pricePerNight
 })
 
+// Lớp phòng thủ số 2: Kiểm tra xem user có chọn ngày Check-out vắt ngang qua 1 ngày đã bị Book không
+const isValidDateRange = computed(() => {
+  if (!checkInDate.value || !checkOutDate.value) return true
+
+  const start = new Date(checkInDate.value)
+  const end = new Date(checkOutDate.value)
+
+  for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+    const dateStr = d.toISOString().split('T')[0]
+    if (bookedDates.value.includes(dateStr)) {
+      return false
+    }
+  }
+  return true
+})
+
+// Cảnh báo nếu khoảng ngày vắt ngang ngày đã Book
+watch([checkInDate, checkOutDate], () => {
+  if (!isValidDateRange.value) {
+    bookingError.value =
+      'Khoảng thời gian bạn chọn có chứa ngày đã được đặt. Vui lòng chọn ngày khác.'
+  } else {
+    bookingError.value = null
+  }
+})
+
 // Lấy dữ liệu khi load trang
 onMounted(async () => {
   const id = route.params.id as string
   try {
-    property.value = await propertyService.getPropertyById(id)
+    const [propertyData, datesData] = await Promise.all([
+      propertyService.getPropertyById(id),
+      propertyService.getBookedDates(id),
+    ])
+
+    property.value = propertyData
+    bookedDates.value = datesData
   } catch {
     error.value = 'Không thể tải thông tin chi tiết căn nhà.'
   } finally {
@@ -266,19 +334,21 @@ onMounted(async () => {
 const handleBooking = async () => {
   bookingError.value = null
 
-  // 1. Kiểm tra đăng nhập
   if (!authStore.isAuthenticated) {
     bookingError.value = 'Vui lòng Đăng nhập để tiến hành đặt phòng.'
     return
   }
 
-  // 2. Kiểm tra ngày tháng
+  if (!isValidDateRange.value) {
+    bookingError.value = 'Ngày chọn không hợp lệ (vướng lịch đã đặt).'
+    return
+  }
+
   if (totalNights.value <= 0) {
     bookingError.value = 'Ngày trả phòng phải sau ngày nhận phòng.'
     return
   }
 
-  // 3. Kiểm tra số lượng khách
   if (property.value && (guests.value < 1 || guests.value > property.value.maxGuests)) {
     bookingError.value = `Vui lòng chọn số lượng khách từ 1 đến ${property.value.maxGuests}.`
     return
@@ -298,12 +368,15 @@ const handleBooking = async () => {
 
     alert('🎉 Đặt phòng thành công! Chủ nhà sẽ liên hệ với bạn sớm nhất.')
 
+    // Tự động tải lại trang để Lịch cập nhật ngay lập tức các ngày vừa book
+    const newDates = await propertyService.getBookedDates(property.value!.id)
+    bookedDates.value = newDates // Lịch Element Plus sẽ tự động bôi xám ngày vừa đặt!
+
     // Reset Form
     checkInDate.value = ''
     checkOutDate.value = ''
     guests.value = 1
   } catch (error: unknown) {
-    // Ép kiểu an toàn (Safe Type Assertion)
     const err = error as { response?: { data?: { error?: string } } }
     const backendError = err?.response?.data?.error || 'Có lỗi xảy ra khi gọi API đặt phòng.'
 
@@ -314,14 +387,12 @@ const handleBooking = async () => {
   }
 }
 
-// BỔ SUNG: Hàm chuyển trang sang Edit
 const goToEdit = () => {
   if (property.value) {
     router.push(`/properties/${property.value.id}/edit`)
   }
 }
 
-// BỔ SUNG: Hàm Xóa bài đăng
 const handleDelete = async () => {
   if (!property.value) return
 
@@ -329,7 +400,7 @@ const handleDelete = async () => {
     try {
       await propertyService.deleteProperty(property.value.id)
       alert('Đã xóa tin đăng thành công!')
-      router.push('/') // Xóa xong thì đẩy về trang chủ
+      router.push('/')
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } }
       alert(err.response?.data?.message || 'Có lỗi xảy ra khi xóa bài đăng. Vui lòng thử lại.')

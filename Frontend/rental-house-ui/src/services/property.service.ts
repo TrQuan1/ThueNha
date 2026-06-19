@@ -60,6 +60,11 @@ export const propertyService = {
     })
     return response.data
   },
+
+  async getBookedDates(id: number | string): Promise<string[]> {
+    const response = await apiClient.get<string[]>(`/properties/${id}/booked-dates`)
+    return response.data
+  },
 }
 
 export default propertyService
