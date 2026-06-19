@@ -16,4 +16,5 @@ public interface IPropertyRepository : IRepository<Property>
         int pageNumber,
         int pageSize,
         string? sortBy);
+    Task<int> CountPropertiesByHostIdAsync(int hostId);
 }
