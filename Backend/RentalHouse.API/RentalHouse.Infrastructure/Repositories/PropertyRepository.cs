@@ -79,4 +79,8 @@ public class PropertyRepository : GenericRepository<Property>, IPropertyReposito
 
         return (items, totalCount);
     }
+    public async Task<int> CountPropertiesByHostIdAsync(int hostId)
+    {
+        return await _dbSet.CountAsync(p => p.HostId == hostId);
+    }
 }

@@ -77,6 +77,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             Status = BookingStatus.Pending
         };
 
+
         await _bookingRepository.AddAsync(booking);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -48,4 +48,12 @@ public class BookingRepository : GenericRepository<Booking>, IBookingRepository
                        b.CheckOutDate > today)
             .ToListAsync();
     }
+    public async Task<IEnumerable<Booking>> GetBookingsForHostAsync(int hostId)
+    {
+        return await _dbSet
+            .Include(b => b.Property) // Nối bảng để lấy ra nhà của Host
+            .Where(b => b.Property.HostId == hostId &&
+                       (b.Status == BookingStatus.Approved || b.Status == BookingStatus.Completed))
+            .ToListAsync();
+    }
 }
