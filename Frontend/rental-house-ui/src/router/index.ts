@@ -63,6 +63,12 @@ const router = createRouter({
           meta: { requiresAuth: true, allowedRoles: ['Host'] },
         },
         {
+          path: '/host/dashboard',
+          name: 'HostDashboard',
+          component: () => import('@/views/host/HostDashboardView.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
           path: 'admin/properties',
           name: 'admin-properties',
           component: () => import('@/views/admin/AdminPropertiesView.vue'),
