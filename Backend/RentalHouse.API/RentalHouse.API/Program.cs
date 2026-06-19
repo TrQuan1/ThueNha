@@ -35,6 +35,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPropertyRepository, PropertyRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+builder.Services.AddScoped<IPropertyCalendarRepository, PropertyCalendarRepository>();
 
 // 3. Đăng ký bộ mã hóa mật khẩu và dịch vụ sinh mã thông báo JWT
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
