@@ -162,4 +162,20 @@ public class PropertyController : ControllerBase
             return BadRequest(new { Error = ex.Message });
         }
     }
+
+    [HttpGet("{id}/booked-dates")]
+    [AllowAnonymous] // Ai cũng xem được lịch trống
+    public async Task<IActionResult> GetBookedDates(int id)
+    {
+        try
+        {
+            var query = new GetBookedDatesQuery { PropertyId = id };
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

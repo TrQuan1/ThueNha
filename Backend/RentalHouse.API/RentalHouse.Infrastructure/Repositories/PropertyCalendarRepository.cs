@@ -68,4 +68,15 @@ public class PropertyCalendarRepository : GenericRepository<PropertyCalendar>, I
             date.Status = CalendarStatus.Available; // Nhả lịch lại thành trống
         }
     }
+
+    public async Task<List<string>> GetBookedDatesAsync(int propertyId)
+    {
+        var today = DateTime.UtcNow.Date; // Lấy ngày hôm nay
+        return await _dbSet
+            .Where(c => c.PropertyId == propertyId &&
+                        (c.Status == CalendarStatus.Booked || c.Status == CalendarStatus.Blocked) &&
+                        c.Date >= today)
+            .Select(c => c.Date.ToString("yyyy-MM-dd"))
+            .ToListAsync();
+    }
 }

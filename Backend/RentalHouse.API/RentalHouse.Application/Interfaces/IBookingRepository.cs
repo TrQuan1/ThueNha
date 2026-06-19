@@ -12,4 +12,5 @@ public interface IBookingRepository : IRepository<Booking>
 
     // Lấy danh sách yêu cầu đặt phòng gửi đến các nhà của Host
     Task<IEnumerable<Booking>> GetBookingsByHostAsync(int hostId);
+    Task<IEnumerable<Booking>> GetActiveBookingsForPropertyAsync(int propertyId);
 }
