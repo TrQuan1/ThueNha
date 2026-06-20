@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using RentalHouse.Application.DTOs.Properties;
+using RentalHouse.Application.Features.Properties.Events;
 using RentalHouse.Application.Interfaces;
 using RentalHouse.Domain.Entities;
 using RentalHouse.Domain.Enums;
@@ -10,11 +11,13 @@ public class CreatePropertyCommandHandler : IRequestHandler<CreatePropertyComman
 {
     private readonly IPropertyRepository _propertyRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public CreatePropertyCommandHandler(IPropertyRepository propertyRepository, IUnitOfWork unitOfWork)
+    public CreatePropertyCommandHandler(IPropertyRepository propertyRepository, IUnitOfWork unitOfWork, IMediator mediator)
     {
         _propertyRepository = propertyRepository;
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     public async Task<PropertyDto> Handle(CreatePropertyCommand request, CancellationToken cancellationToken)
@@ -44,6 +47,12 @@ public class CreatePropertyCommandHandler : IRequestHandler<CreatePropertyComman
         // Gọi AddAsync 1 lần duy nhất, EF Core sẽ tự động thêm cả Property và PropertyFacilities vào DB.
         await _propertyRepository.AddAsync(property);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _mediator.Publish(new PropertyCreatedEvent
+        {
+            PropertyId = property.Id,
+            HostId = property.HostId,
+            PropertyTitle = property.Title
+        }, cancellationToken);
 
         return new PropertyDto
         {

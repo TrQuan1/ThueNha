@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using RentalHouse.Application.Features.Properties.Events;
 using RentalHouse.Application.Interfaces;
 using RentalHouse.Domain.Enums;
 
@@ -8,11 +9,13 @@ public class ApprovePropertyCommandHandler : IRequestHandler<ApprovePropertyComm
 {
     private readonly IPropertyRepository _propertyRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
-    public ApprovePropertyCommandHandler(IPropertyRepository propertyRepository, IUnitOfWork unitOfWork)
+    public ApprovePropertyCommandHandler(IPropertyRepository propertyRepository, IUnitOfWork unitOfWork, IMediator mediator)
     {
         _propertyRepository = propertyRepository;
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     public async Task<bool> Handle(ApprovePropertyCommand request, CancellationToken cancellationToken)
@@ -28,6 +31,14 @@ public class ApprovePropertyCommandHandler : IRequestHandler<ApprovePropertyComm
 
         _propertyRepository.Update(property);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _mediator.Publish(new PropertyStatusChangedEvent
+        {
+            PropertyId = property.Id,
+            HostId = property.HostId,
+            PropertyTitle = property.Title,
+            TargetStatus = property.Status // Truyền PropertyStatus.Active hoặc Rejected
+        }, cancellationToken);
 
         return true;
     }
