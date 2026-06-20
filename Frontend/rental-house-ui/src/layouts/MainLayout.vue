@@ -187,7 +187,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { RouterView, RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import AuthModal from '@/components/common/AuthModal.vue'
@@ -254,8 +254,26 @@ const formatDate = (dateString: string) => {
 }
 
 // Gọi API lần đầu khi load toàn bộ khung trang
+// Biến lưu trữ bộ đếm giờ
+let pollingInterval: ReturnType<typeof setInterval> | null = null
+
+// Gọi API lần đầu khi load toàn bộ khung trang
 onMounted(() => {
   fetchNotifications()
+
+  // BÍ THUẬT SHORT POLLING: Tự động gọi lại ngầm mỗi 10 giây (10000ms)
+  pollingInterval = setInterval(() => {
+    if (authStore.isAuthenticated) {
+      fetchNotifications()
+    }
+  }, 10000)
+})
+
+// Dọn dẹp bộ đếm khi đóng trình duyệt hoặc tắt component (Chuẩn Clean Code)
+onUnmounted(() => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval)
+  }
 })
 // -----------------------------
 
