@@ -9,19 +9,22 @@ namespace RentalHouse.Application.Features.Bookings.Commands;
 public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand, BookingDto>
 {
     private readonly IBookingRepository _bookingRepository;
-    private readonly IPropertyRepository _propertyRepository; // Gọi lại kho lưu Property
-    private readonly IPropertyCalendarRepository _calendarRepository; // Kho lưu Lịch
+    private readonly IPropertyRepository _propertyRepository;
+    private readonly IPropertyCalendarRepository _calendarRepository;
+    private readonly INotificationRepository _notificationRepository; // Đã thêm repo notification
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateBookingCommandHandler(
         IBookingRepository bookingRepository,
         IPropertyRepository propertyRepository,
         IPropertyCalendarRepository calendarRepository,
+        INotificationRepository notificationRepository, // Tiêm vào constructor
         IUnitOfWork unitOfWork)
     {
         _bookingRepository = bookingRepository;
         _propertyRepository = propertyRepository;
         _calendarRepository = calendarRepository;
+        _notificationRepository = notificationRepository; // Gán
         _unitOfWork = unitOfWork;
     }
 
@@ -73,12 +76,27 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             CheckInDate = request.CheckInDate,
             CheckOutDate = request.CheckOutDate,
             NumberOfGuests = request.NumberOfGuests,
-            TotalPrice = calculatedPrice, // Bắt buộc dùng giá do Backend tự tính
+            TotalPrice = calculatedPrice,
             Status = BookingStatus.Pending
         };
 
-
         await _bookingRepository.AddAsync(booking);
+
+        // -------------------------------------------------------------
+        // 👉 GỬI THÔNG BÁO CHO CHỦ NHÀ
+        // -------------------------------------------------------------
+        var notification = new Notification
+        {
+            UserId = property.HostId, // Gửi cho Chủ nhà (Host)
+            Title = "🎉 Có yêu cầu đặt phòng mới!",
+            Content = $"Căn nhà '{property.Title}' của bạn vừa được đặt từ ngày {request.CheckInDate:dd/MM/yyyy} đến {request.CheckOutDate:dd/MM/yyyy}. Hãy vào xem ngay!",
+            RedirectUrl = "/host/bookings", // Đường link để chủ nhà nhảy ra trang quản lý yêu cầu
+            IsRead = false,
+            CreatedAt = DateTime.UtcNow
+        };
+        await _notificationRepository.AddAsync(notification);
+        // -------------------------------------------------------------
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new BookingDto
