@@ -30,7 +30,9 @@ public class GetTenantBookingsQueryHandler : IRequestHandler<GetTenantBookingsQu
             CheckInDate = b.CheckInDate,
             CheckOutDate = b.CheckOutDate,
             TotalPrice = b.TotalPrice,
-            Status = b.Status
+            Status = b.Status,
+            // 👉 THÊM DÒNG NÀY ĐỂ LẤY TÊN NHÀ (Nhớ thêm thuộc tính PropertyTitle vào file BookingDto.cs nhé)
+            PropertyTitle = b.Property?.Title ?? $"Căn nhà #{b.PropertyId}"
         });
     }
 }

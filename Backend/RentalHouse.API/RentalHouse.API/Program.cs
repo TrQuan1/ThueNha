@@ -58,6 +58,8 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<INotificationSender, NotificationSender>();
+// Đăng ký Background Worker chạy ngầm
+builder.Services.AddHostedService<RentalHouse.API.Workers.BookingStatusUpdaterWorker>();
 
 builder.Services.AddAuthentication(options =>
 {
