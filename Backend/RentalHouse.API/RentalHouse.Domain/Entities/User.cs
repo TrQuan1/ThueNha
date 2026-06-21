@@ -16,6 +16,8 @@ public class User : BaseEntity
     // Các thuộc tính bổ sung để phục vụ cơ chế Refresh Token
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
+    public string? ResetPasswordOtp { get; set; }
+    public DateTime? OtpExpiryTime { get; set; }
 
     // Navigation Properties
     public ICollection<Property> Properties { get; set; } = new List<Property>();

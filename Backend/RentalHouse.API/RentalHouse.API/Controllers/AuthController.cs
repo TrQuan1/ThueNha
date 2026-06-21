@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RentalHouse.Application.Features.Auth.Commands;
 using RentalHouse.Application.Features.Users.Commands;
@@ -47,4 +48,42 @@ public class AuthController : ControllerBase
             return BadRequest(new { Error = ex.Message }); // Các lỗi hệ thống khác (HTTP 400)
         }
     }
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+    {
+        try
+        {
+            var command = new ForgotPasswordCommand { Email = request.Email };
+            await _mediator.Send(command);
+            return Ok(new { message = "Mã xác thực đã được gửi tới email của bạn." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+    {
+        try
+        {
+            var command = new ResetPasswordCommand
+            {
+                Email = request.Email,
+                Otp = request.Otp,
+                NewPassword = request.NewPassword
+            };
+            await _mediator.Send(command);
+            return Ok(new { message = "Khôi phục mật khẩu thành công. Bạn có thể đăng nhập ngay." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+    public class ForgotPasswordRequest { public string Email { get; set; } = string.Empty; }
+    public class ResetPasswordRequest { public string Email { get; set; } = string.Empty; public string Otp { get; set; } = string.Empty; public string NewPassword { get; set; } = string.Empty; }
 }
