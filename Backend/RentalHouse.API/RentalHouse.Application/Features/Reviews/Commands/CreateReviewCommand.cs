@@ -20,13 +20,15 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, R
     private readonly IBookingRepository _bookingRepository;
     private readonly IPropertyRepository _propertyRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationRepository _notificationRepository;
 
-    public CreateReviewCommandHandler(IReviewRepository reviewRepository, IBookingRepository bookingRepository, IPropertyRepository propertyRepository, IUnitOfWork unitOfWork)
+    public CreateReviewCommandHandler(IReviewRepository reviewRepository, IBookingRepository bookingRepository, IPropertyRepository propertyRepository, IUnitOfWork unitOfWork, INotificationRepository notificationRepository)
     {
         _reviewRepository = reviewRepository;
         _bookingRepository = bookingRepository;
         _propertyRepository = propertyRepository;
         _unitOfWork = unitOfWork;
+        _notificationRepository = notificationRepository;
     }
 
     public async Task<ReviewDto> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
@@ -69,6 +71,25 @@ public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, R
             property.AverageRating = stats.Average;
             property.ReviewCount = stats.Count;
             _propertyRepository.Update(property);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        // 👉 CHÈN KHỐI TẠO THÔNG BÁO VÀO ĐÂY:
+        if (property != null)
+        {
+            // Tạo tiếng sao lấp lánh cho tiêu đề dựa trên số điểm khách chấm
+            string stars = new string('⭐', request.Rating);
+
+            var notification = new Notification
+            {
+                UserId = property.HostId, // Gửi thẳng cho ông Chủ nhà
+                Title = "Có đánh giá mới! " + stars,
+                Content = $"Căn nhà '{property.Title}' của bạn vừa nhận được một đánh giá {request.Rating} sao từ khách hàng. Hãy vào xem ngay!",
+                RedirectUrl = $"/properties/{property.Id}", // Bấm vào chuông thì nhảy tới trang nhà đó
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _notificationRepository.AddAsync(notification);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 

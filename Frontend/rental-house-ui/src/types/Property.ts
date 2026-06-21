@@ -15,6 +15,8 @@ export interface Property {
   imageUrl?: string
   status?: number // 0: Pending, 1: Approved, 2: Rejected
   facilities?: Facility[] // Bổ sung dòng này
+  averageRating?: number // Khai báo thêm Điểm trung bình
+  reviewCount?: number // Khai báo thêm Số lượt đánh giá
 }
 
 export interface PropertyFilterParams {

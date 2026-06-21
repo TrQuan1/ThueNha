@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using RentalHouse.Application.Features.Bookings.Events;
 using RentalHouse.Application.Interfaces;
 using RentalHouse.Domain.Entities; // Phải using này để xài Entity Notification
 using RentalHouse.Domain.Enums;
@@ -19,19 +20,21 @@ public class ChangeBookingStatusCommandHandler : IRequestHandler<ChangeBookingSt
     private readonly IPropertyCalendarRepository _calendarRepository;
     private readonly INotificationRepository _notificationRepository; // Đã thêm repo notification
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMediator _mediator;
 
     public ChangeBookingStatusCommandHandler(
         IBookingRepository bookingRepository,
         IPropertyRepository propertyRepository,
         IPropertyCalendarRepository calendarRepository,
         INotificationRepository notificationRepository, // Tiêm vào
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork, IMediator mediator)
     {
         _bookingRepository = bookingRepository;
         _propertyRepository = propertyRepository;
         _calendarRepository = calendarRepository;
         _notificationRepository = notificationRepository; // Gán
         _unitOfWork = unitOfWork;
+        _mediator = mediator;
     }
 
     public async Task<bool> Handle(ChangeBookingStatusCommand request, CancellationToken cancellationToken)
@@ -124,6 +127,17 @@ public class ChangeBookingStatusCommandHandler : IRequestHandler<ChangeBookingSt
 
         // 4. LƯU DATABASE
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _mediator.Publish(new BookingStatusChangedEvent
+        {
+            BookingId = booking.Id,
+            PropertyId = booking.PropertyId,
+            HostId = property.HostId, // Cần Join hoặc Query Property để lấy Title và HostId nếu chưa có
+            TenantId = booking.TenantId,
+            TriggeredByUserId = request.UserId, // User thực hiện action từ Controller truyền vào Command
+            TargetStatus = request.TargetStatus,
+            PropertyTitle = property.Title
+        }, cancellationToken);
 
         return true;
     }

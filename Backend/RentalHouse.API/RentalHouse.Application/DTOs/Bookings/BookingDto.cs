@@ -11,4 +11,5 @@ public class BookingDto
     public DateTime CheckOutDate { get; set; }
     public decimal TotalPrice { get; set; }
     public BookingStatus Status { get; set; }
+    public string PropertyTitle { get; set; } = string.Empty;
 }

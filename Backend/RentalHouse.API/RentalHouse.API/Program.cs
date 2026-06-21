@@ -1,12 +1,13 @@
-﻿using System.Text;
-using System.Reflection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RentalHouse.Application.Interfaces;
+using RentalHouse.Application.Services;
 using RentalHouse.Infrastructure.Data;
 using RentalHouse.Infrastructure.Repositories;
 using RentalHouse.Infrastructure.Services;
+using System.Reflection;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,6 +57,9 @@ builder.Services.AddScoped<IFacilityRepository, FacilityRepository>();
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<INotificationSender, NotificationSender>();
+// Đăng ký Background Worker chạy ngầm
+builder.Services.AddHostedService<RentalHouse.API.Workers.BookingStatusUpdaterWorker>();
 
 builder.Services.AddAuthentication(options =>
 {
