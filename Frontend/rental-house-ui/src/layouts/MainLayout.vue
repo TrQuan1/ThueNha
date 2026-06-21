@@ -243,7 +243,8 @@ const handleNotificationClick = async (notif: NotificationDto) => {
 }
 
 const formatDate = (dateString: string) => {
-  const d = new Date(dateString)
+  const utcDateString = dateString.endsWith('Z') ? dateString : dateString + 'Z'
+  const d = new Date(utcDateString)
   return d.toLocaleString('vi-VN', {
     hour: '2-digit',
     minute: '2-digit',
@@ -266,7 +267,7 @@ onMounted(() => {
     if (authStore.isAuthenticated) {
       fetchNotifications()
     }
-  }, 10000)
+  }, 5000)
 })
 
 // Dọn dẹp bộ đếm khi đóng trình duyệt hoặc tắt component (Chuẩn Clean Code)

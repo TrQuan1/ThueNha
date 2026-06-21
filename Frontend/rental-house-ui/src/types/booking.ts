@@ -14,4 +14,5 @@ export interface BookingResponse {
   checkOutDate: string
   totalPrice: number
   status: number
+  propertyTitle?: string
 }
