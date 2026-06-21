@@ -25,6 +25,10 @@
           />
         </div>
 
+        <div class="forgot-password-link">
+          <router-link to="/forgot-password">Quên mật khẩu?</router-link>
+        </div>
+
         <div v-if="authStore.error" class="error-message">
           {{ authStore.error }}
         </div>
@@ -58,8 +62,7 @@ const handleLogin = async () => {
       router.push('/')
     }
   } catch {
-    // Lỗi đã được bắt và lưu vào biến authStore.error ở trong file auth.store.ts rồi,
-    // nên ở đây chúng ta không cần khai báo thêm biến error nào nữa.
+    // Lỗi đã được bắt và lưu vào biến authStore.error ở trong file auth.store.ts rồi
   }
 }
 </script>
@@ -145,4 +148,23 @@ input:focus {
   background-color: #9ca3af;
   cursor: not-allowed;
 }
+
+/* 👉 CSS CHO LINK QUÊN MẬT KHẨU */
+/* .forgot-password-link {
+  text-align: right;
+  margin-bottom: 1.25rem;
+}
+
+.forgot-password-link a {
+  font-size: 0.875rem;
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+  color: #2563eb;
+} */
 </style>
