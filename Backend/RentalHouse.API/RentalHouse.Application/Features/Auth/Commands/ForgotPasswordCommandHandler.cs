@@ -10,6 +10,7 @@ public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordComman
     private readonly IEmailService _emailService;
     private readonly IUnitOfWork _unitOfWork;
 
+
     public ForgotPasswordCommandHandler(IUserRepository userRepository, IEmailService emailService, IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
