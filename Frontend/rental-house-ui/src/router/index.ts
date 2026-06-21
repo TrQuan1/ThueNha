@@ -5,13 +5,20 @@ import MainLayout from '@/layouts/MainLayout.vue'
 declare module 'vue-router' {
   interface RouteMeta {
     requiresAuth?: boolean
-    allowedRoles?: string[] // ĐÃ ĐỔI THÀNH MẢNG CHUỖI
+    allowedRoles?: string[]
   }
 }
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // 2 Trang này để ra ngoài, không dính líu đến Header/Menu của MainLayout
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/auth/LoginView.vue'),
+    },
+    // Các trang chính của hệ thống
     {
       path: '/',
       component: MainLayout,
@@ -54,7 +61,7 @@ const router = createRouter({
           path: 'properties/:id/edit',
           name: 'property-edit',
           component: () => import('@/views/properties/EditPropertyView.vue'),
-          meta: { requiresAuth: true, allowedRoles: ['Host'] }, // Chỉ Host mới được vào trang sửa
+          meta: { requiresAuth: true, allowedRoles: ['Host'] },
         },
         {
           path: 'host/properties',
@@ -101,7 +108,7 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth) {
     if (!token || !userStr) {
       alert('Vui lòng đăng nhập để tiếp tục.')
-      return '/'
+      return '/login'
     }
 
     if (to.meta.allowedRoles && to.meta.allowedRoles.length > 0) {
@@ -115,7 +122,7 @@ router.beforeEach((to) => {
         }
       } catch {
         alert('Lỗi cấu trúc dữ liệu người dùng.')
-        return '/'
+        return '/login'
       }
     }
   }

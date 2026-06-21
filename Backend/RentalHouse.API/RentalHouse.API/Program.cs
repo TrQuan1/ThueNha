@@ -58,6 +58,8 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<INotificationSender, NotificationSender>();
+// Đăng ký dịch vụ Gửi Email
+builder.Services.AddTransient<RentalHouse.Application.Interfaces.IEmailService, RentalHouse.Infrastructure.Services.SmtpEmailService>();
 // Đăng ký Background Worker chạy ngầm
 builder.Services.AddHostedService<RentalHouse.API.Workers.BookingStatusUpdaterWorker>();
 
