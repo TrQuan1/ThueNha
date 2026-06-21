@@ -21,4 +21,11 @@ export const userService = {
   async updateProfile(data: UpdateProfilePayload): Promise<void> {
     await apiClient.put('/account/profile', data)
   },
+  async changePassword(data: {
+    currentPassword: string
+    newPassword: string
+    confirmNewPassword: string
+  }): Promise<void> {
+    await apiClient.put('/account/profile/change-password', data)
+  },
 }

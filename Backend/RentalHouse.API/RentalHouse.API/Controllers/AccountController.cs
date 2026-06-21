@@ -65,10 +65,40 @@ public class AccountController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        try
+        {
+            var userId = GetCurrentUserId(); // Tái sử dụng hàm xịn bạn viết sẵn ở trên
+
+            var command = new ChangePasswordCommand
+            {
+                UserId = userId,
+                CurrentPassword = request.CurrentPassword,
+                NewPassword = request.NewPassword,
+                ConfirmNewPassword = request.ConfirmNewPassword
+            };
+
+            await _mediator.Send(command);
+            return Ok(new { message = "Đổi mật khẩu thành công!" });
+        }
+        catch (Exception ex)
+        {
+            // Trả về lỗi 400 để Frontend bắt và báo chữ đỏ
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }
 
 public class UpdateProfileRequest
 {
     public string FullName { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
+}
+public class ChangePasswordRequest
+{
+    public string CurrentPassword { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
+    public string ConfirmNewPassword { get; set; } = string.Empty;
 }
