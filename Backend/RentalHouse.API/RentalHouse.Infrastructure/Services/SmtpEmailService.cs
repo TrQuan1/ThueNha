@@ -16,20 +16,28 @@ public class SmtpEmailService : IEmailService
 
     public async Task SendEmailAsync(string to, string subject, string htmlBody)
     {
-        var host = _config["SmtpSettings:Host"];
-        var port = int.Parse(_config["SmtpSettings:Port"] ?? "587");
-        var email = _config["SmtpSettings:Email"];
-        var password = _config["SmtpSettings:AppPassword"]; // Mật khẩu ứng dụng Gmail
+        // 👉 Đã sửa các khóa để khớp với EmailSettings trong appsettings.json
+        var host = _config["EmailSettings:Host"];
+        var port = int.Parse(_config["EmailSettings:Port"] ?? "587");
+        var email = _config["EmailSettings:Email"];
+        var password = _config["EmailSettings:Password"]; // Đã đổi AppPassword -> Password
+
+        // Kiểm tra xem email có bị null không để báo lỗi rõ ràng
+        if (string.IsNullOrEmpty(email))
+        {
+            throw new Exception("Không tìm thấy cấu hình Email trong appsettings.json");
+        }
 
         using var client = new SmtpClient(host, port)
         {
             Credentials = new NetworkCredential(email, password),
-            EnableSsl = true
+            EnableSsl = true,
+            UseDefaultCredentials = false // Quan trọng: Phải set false cho Gmail
         };
 
         var mailMessage = new MailMessage
         {
-            From = new MailAddress(email!, "RentalHouse Admin"),
+            From = new MailAddress(email, "RentalHouse Admin"),
             Subject = subject,
             Body = htmlBody,
             IsBodyHtml = true

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using RentalHouse.API.Hubs;
 using RentalHouse.Application.Interfaces;
 using RentalHouse.Application.Services;
 using RentalHouse.Infrastructure.Data;
@@ -25,8 +26,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .SetIsOriginAllowed((host) => true) // Cho phép mọi origin trong Dev
-              .AllowCredentials();
+              .SetIsOriginAllowed((host) => true)
+              .AllowCredentials(); // 👉 BẮT BUỘC PHẢI THÊM DÒNG NÀY
     });
 });
 
@@ -58,6 +59,10 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<INotificationSender, NotificationSender>();
+builder.Services.AddSingleton<IChatConnectionTracker, ChatConnectionTracker>();
+builder.Services.AddScoped<IChatNotificationService, RentalHouse.API.Services.ChatNotificationService>();
+
+builder.Services.AddSignalR();
 // Đăng ký dịch vụ Gửi Email
 builder.Services.AddTransient<RentalHouse.Application.Interfaces.IEmailService, RentalHouse.Infrastructure.Services.SmtpEmailService>();
 // Đăng ký Background Worker chạy ngầm
@@ -82,6 +87,23 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = jwtSettings["Audience"],
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
+    };
+
+    // Khối Events lấy token cho SignalR
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            // Nếu là request gửi đến Hub Chat và có token thì đọc token từ URL
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chathub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -143,4 +165,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chathub");
+
 app.Run();
