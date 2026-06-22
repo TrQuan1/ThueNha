@@ -61,6 +61,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<INotificationSender, NotificationSender>();
 builder.Services.AddSingleton<IChatConnectionTracker, ChatConnectionTracker>();
 builder.Services.AddScoped<IChatNotificationService, RentalHouse.API.Services.ChatNotificationService>();
+builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 
 builder.Services.AddSignalR();
 // Đăng ký dịch vụ Gửi Email
