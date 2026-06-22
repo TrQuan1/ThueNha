@@ -184,6 +184,15 @@
             >
               {{ isBooking ? 'Đang xử lý...' : 'Đặt phòng ngay' }}
             </button>
+
+            <div class="mt-4 pt-4 border-t border-gray-100">
+              <button
+                @click="startChatWithHost"
+                class="w-full bg-white hover:bg-gray-50 text-blue-600 border-2 border-blue-600 font-bold py-3 px-4 rounded-xl transition cursor-pointer flex items-center justify-center gap-2"
+              >
+                <span class="text-xl">💬</span> Nhắn tin cho Chủ nhà
+              </button>
+            </div>
           </div>
 
           <div
@@ -211,10 +220,9 @@ import { bookingService } from '@/services/booking.service'
 import { useAuthStore } from '@/stores/auth.store'
 import type { Property } from '@/types/property'
 import type { CreateBookingRequest } from '@/types/booking'
-// 👉 [THÊM MỚI] IMPORT REVIEW LIST
 import PropertyReviewList from '@/components/reviews/PropertyReviewList.vue'
+import apiClient from '@/services/api.client'
 
-// ... (Toàn bộ logic script bên dưới giữ nguyên y hệt, không thay đổi 1 dòng nào) ...
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -283,6 +291,31 @@ watch([checkInDate, checkOutDate], () => {
     bookingError.value = null
   }
 })
+
+const startChatWithHost = async () => {
+  if (!authStore.isAuthenticated) {
+    alert('Vui lòng đăng nhập bằng tài khoản Khách thuê để nhắn tin cho Chủ nhà.')
+    return
+  }
+
+  if (!property.value) return
+
+  try {
+    // Gọi API qua file cấu hình chuẩn của dự án
+    // Không gán vào biến response nữa để tránh lỗi "never used" của ESLint
+    await apiClient.post('/chat/conversations', {
+      propertyId: property.value.id,
+      hostId: property.value.hostId,
+    })
+
+    // Khi backend xử lý xong thì đá thẳng sang trang chat
+    router.push('/chat')
+  } catch (error) {
+    console.error('Không thể tạo đoạn chat:', error)
+    alert('Lỗi: Không thể kết nối với hệ thống nhắn tin lúc này.')
+  }
+}
+
 onMounted(async () => {
   const id = route.params.id as string
   try {

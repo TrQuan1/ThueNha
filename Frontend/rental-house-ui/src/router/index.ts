@@ -88,6 +88,14 @@ const router = createRouter({
           meta: { requiresAuth: true, allowedRoles: ['Admin'] },
         },
         {
+          path: 'chat',
+          name: 'chat',
+          component: () => import('@/views/chat/ChatView.vue'),
+          meta: {
+            requiresAuth: true, // Bắt buộc đăng nhập mới được chat
+          },
+        },
+        {
           path: 'account/profile',
           name: 'account-profile',
           component: () => import('@/views/account/ProfileView.vue'),
@@ -108,7 +116,7 @@ router.beforeEach((to) => {
   if (to.meta.requiresAuth) {
     if (!token || !userStr) {
       alert('Vui lòng đăng nhập để tiếp tục.')
-      return '/login'
+      return '/'
     }
 
     if (to.meta.allowedRoles && to.meta.allowedRoles.length > 0) {
@@ -122,7 +130,7 @@ router.beforeEach((to) => {
         }
       } catch {
         alert('Lỗi cấu trúc dữ liệu người dùng.')
-        return '/login'
+        return '/'
       }
     }
   }
