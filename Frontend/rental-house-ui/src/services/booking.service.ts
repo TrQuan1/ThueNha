@@ -43,6 +43,12 @@ export const bookingService = {
     return []
   },
 
+  // THÊM MỚI: API dành cho Host Hủy đơn đã duyệt
+  async cancelBookingByHost(id: number | string): Promise<{ message: string }> {
+    const response = await apiClient.put<{ message: string }>(`/Booking/${id}/host-cancel`)
+    return response.data
+  },
+
   async cancelBooking(id: number | string): Promise<{ message: string }> {
     const response = await apiClient.put<{ message: string }>(`/Booking/${id}/cancel`)
     return response.data

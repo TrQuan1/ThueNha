@@ -94,6 +94,16 @@
                   Từ chối
                 </button>
               </template>
+
+              <template v-else-if="booking.status === 2">
+                <button
+                  @click="handleCancelByHost(booking.id)"
+                  :disabled="isProcessing"
+                  class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+                >
+                  Hủy
+                </button>
+              </template>
               <template v-else>
                 <span class="text-gray-400 italic">Không khả dụng</span>
               </template>
@@ -143,6 +153,7 @@ const getStatusText = (status: number) => {
   if (status === 2) return 'Đã duyệt'
   if (status === 3) return 'Đã từ chối'
   if (status === 4) return 'Đã hủy'
+  if (status === 5) return 'Hoàn thành'
   return 'Không xác định'
 }
 
@@ -153,6 +164,7 @@ const getStatusClass = (status: number) => {
   if (status === 2) return baseClass + 'bg-green-100 text-green-800'
   if (status === 3) return baseClass + 'bg-red-100 text-red-800'
   if (status === 4) return baseClass + 'bg-gray-100 text-gray-800'
+  if (status === 5) return baseClass + 'bg-blue-100 text-blue-800'
   return baseClass + 'bg-gray-100 text-gray-800'
 }
 
@@ -183,6 +195,26 @@ const handleReject = async (id: number) => {
   } catch (err: unknown) {
     const errorObj = err as { response?: { data?: { message?: string } } }
     alert(errorObj.response?.data?.message || 'Có lỗi xảy ra khi từ chối.')
+  } finally {
+    isProcessing.value = false
+  }
+}
+
+const handleCancelByHost = async (id: number) => {
+  if (
+    !confirm(
+      'Khách không đến nhận phòng (No-show)? Bạn có chắc chắn muốn HỦY đơn này? Doanh thu dự kiến sẽ bị trừ đi.',
+    )
+  )
+    return
+  isProcessing.value = true
+  try {
+    await bookingService.cancelBookingByHost(id)
+    alert('Đã hủy đơn đặt phòng thành công!')
+    await fetchBookings() // Load lại danh sách
+  } catch (err: unknown) {
+    const errorObj = err as { response?: { data?: { message?: string } } }
+    alert(errorObj.response?.data?.message || 'Có lỗi xảy ra khi hủy.')
   } finally {
     isProcessing.value = false
   }
