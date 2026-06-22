@@ -38,10 +38,12 @@ public class GetHostDashboardQueryHandler : IRequestHandler<GetHostDashboardQuer
         // 2. Lấy Tổng số nhà (Cái này thì lúc nào cũng tính tất cả)
         var totalProperties = await _propertyRepository.CountPropertiesByHostIdAsync(request.HostId);
 
-        // 3. Lấy Booking của Host & Lọc theo Tháng/Năm đã chọn
+        // 3. Lấy Booking của Host & Lọc theo Tháng/Năm đã chọn + Trạng thái hợp lệ
         var allBookings = await _bookingRepository.GetBookingsForHostAsync(request.HostId);
         var monthlyBookings = allBookings
-            .Where(b => b.CheckInDate.Month == targetMonth && b.CheckInDate.Year == targetYear)
+            .Where(b => b.CheckInDate.Month == targetMonth
+                     && b.CheckInDate.Year == targetYear
+                     && (b.Status == BookingStatus.Approved || b.Status == BookingStatus.Completed)) // 👉 CHỈ CỘNG TIỀN ĐƠN ĐÃ DUYỆT HOẶC HOÀN THÀNH
             .ToList();
 
         // 4. Các chỉ số cũng nhảy theo tháng

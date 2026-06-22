@@ -127,4 +127,22 @@ public class BookingController : ControllerBase
         }
         catch (Exception ex) { return BadRequest(new { Error = ex.Message }); }
     }
+    // 7. Host Hủy đặt phòng (Trường hợp khách No-show)
+    [HttpPut("{id}/host-cancel")]
+    [Authorize(Roles = AppRoles.Host)]
+    public async Task<IActionResult> HostCancelBooking(int id)
+    {
+        try
+        {
+            var command = new ChangeBookingStatusCommand
+            {
+                BookingId = id,
+                UserId = GetUserIdFromToken(),
+                TargetStatus = BookingStatus.Cancelled
+            };
+            await _mediator.Send(command);
+            return Ok(new { Message = "Đã hủy đơn đặt phòng (Khách không đến)." });
+        }
+        catch (Exception ex) { return BadRequest(new { Error = ex.Message }); }
+    }
 }

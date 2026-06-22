@@ -84,46 +84,6 @@ public class ChangeBookingStatusCommandHandler : IRequestHandler<ChangeBookingSt
             await _calendarRepository.ReleaseDatesAsync(booking.PropertyId, booking.CheckInDate, booking.CheckOutDate);
         }
 
-        // -------------------------------------------------------------
-        // 👉 GỬI THÔNG BÁO CHO KHÁCH THUÊ
-        // -------------------------------------------------------------
-        // Nếu không phải là trường hợp khách tự hủy, thì mình báo cho khách
-        if (!(request.TargetStatus == BookingStatus.Cancelled && booking.TenantId == request.UserId))
-        {
-            string statusTitle = "";
-            string statusMessage = "";
-
-            if (request.TargetStatus == BookingStatus.Approved)
-            {
-                statusTitle = "Yêu cầu đặt phòng ĐƯỢC CHẤP NHẬN ✅";
-                statusMessage = $"Chủ nhà đã duyệt yêu cầu đặt phòng của bạn tại '{property.Title}'. Hãy chuẩn bị cho chuyến đi nhé!";
-            }
-            else if (request.TargetStatus == BookingStatus.Rejected)
-            {
-                statusTitle = "Yêu cầu đặt phòng BỊ TỪ CHỐI ❌";
-                statusMessage = $"Rất tiếc, chủ nhà không thể tiếp nhận yêu cầu đặt phòng của bạn tại '{property.Title}'.";
-            }
-            else if (request.TargetStatus == BookingStatus.Cancelled)
-            {
-                statusTitle = "Đơn đặt phòng BỊ HỦY ⚠️";
-                statusMessage = $"Chủ nhà đã hủy đơn đặt phòng của bạn tại '{property.Title}'. Vui lòng liên hệ để biết thêm chi tiết.";
-            }
-
-            if (!string.IsNullOrEmpty(statusTitle))
-            {
-                var notification = new Notification
-                {
-                    UserId = booking.TenantId, // Gửi cho Khách thuê
-                    Title = statusTitle,
-                    Content = statusMessage,
-                    RedirectUrl = "/my-bookings", // Khách bấm vào chuông sẽ nhảy ra lịch sử chuyến đi của họ
-                    IsRead = false,
-                    CreatedAt = DateTime.UtcNow
-                };
-                await _notificationRepository.AddAsync(notification);
-            }
-        }
-        // -------------------------------------------------------------
 
         // 4. LƯU DATABASE
         await _unitOfWork.SaveChangesAsync(cancellationToken);
