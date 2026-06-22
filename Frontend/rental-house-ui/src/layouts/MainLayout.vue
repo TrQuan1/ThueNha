@@ -81,6 +81,12 @@
         </template>
 
         <template v-else>
+          <router-link
+            to="/chat"
+            class="text-gray-600 hover:text-blue-600 font-medium px-3 py-2 rounded-md"
+          >
+            💬 Tin nhắn
+          </router-link>
           <div class="relative flex items-center ml-1 sm:ml-2">
             <button
               @click="toggleNotifications"

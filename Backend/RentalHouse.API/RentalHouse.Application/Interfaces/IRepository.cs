@@ -11,4 +11,10 @@ public interface IRepository<T> where T : BaseEntity
     Task AddAsync(T entity);
     void Update(T entity);
     void Delete(T entity); // Sẽ được cấu hình thành Xóa mềm
+    Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<T>> GetAsync(
+         Expression<Func<T, bool>>? predicate = null,
+         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+         string? includeString = null,
+         bool disableTracking = true);
 }

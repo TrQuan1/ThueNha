@@ -78,9 +78,16 @@ export const useChatStore = defineStore('chat', {
       const res = await apiClient.get(`/chat/conversations/${conversationId}/messages`)
       this.currentMessages = res.data
 
-      // Reset unread count
+      // 1. Reset unread count trên giao diện (Vue State)
       const conv = this.conversations.find((c) => c.id === conversationId)
       if (conv) conv.unreadCount = 0
+
+      // 2. 👉 BẮT BUỘC PHẢI CÓ ĐOẠN NÀY: Gọi API báo cho Database ở Backend biết đã đọc!
+      try {
+        await apiClient.put(`/chat/conversations/${conversationId}/read`)
+      } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái đã xem xuống DB:', error)
+      }
     },
 
     async sendMessage(conversationId: number, receiverId: number, content: string) {
@@ -98,6 +105,19 @@ export const useChatStore = defineStore('chat', {
         conv.lastMessage = content
         this.conversations.splice(convIndex, 1)
         this.conversations.unshift(conv)
+      }
+    },
+    async markAsRead(conversationId: number) {
+      try {
+        await apiClient.put(`/chat/conversations/${conversationId}/read`)
+
+        // Tắt thông báo đỏ trên giao diện (chữ in đậm) ngay lập tức
+        const conv = this.conversations.find((c) => c.id === conversationId)
+        if (conv) {
+          conv.unreadCount = 0
+        }
+      } catch (error) {
+        console.error('Lỗi khi đánh dấu đã đọc:', error)
       }
     },
   },

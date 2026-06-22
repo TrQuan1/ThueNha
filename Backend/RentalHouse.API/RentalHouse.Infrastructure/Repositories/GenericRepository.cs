@@ -52,4 +52,26 @@ public class GenericRepository<T> : IRepository<T> where T : BaseEntity
         entity.IsDeleted = true;
         _dbSet.Update(entity);
     }
+    public async Task<T?> GetFirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        // Entity Framework sẽ tự động dịch predicate thành câu lệnh SQL WHERE tối ưu nhất
+        return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+    }
+    public async Task<IReadOnlyList<T>> GetAsync(
+        Expression<Func<T, bool>>? predicate = null,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
+        string? includeString = null,
+        bool disableTracking = true)
+    {
+        IQueryable<T> query = _dbSet;
+        if (disableTracking) query = query.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(includeString)) query = query.Include(includeString);
+
+        if (predicate != null) query = query.Where(predicate);
+
+        if (orderBy != null)
+            return await orderBy(query).ToListAsync();
+        return await query.ToListAsync();
+    }
 }
