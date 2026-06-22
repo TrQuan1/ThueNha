@@ -53,6 +53,12 @@
             >
               <span>👥</span> Quản lý người dùng
             </router-link>
+            <router-link
+              to="/admin/dashboard"
+              class="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1"
+            >
+              <span>📊</span> Thống kê & Giao dịch
+            </router-link>
           </template>
 
           <template v-else-if="authStore.user?.role === 'Tenant'">

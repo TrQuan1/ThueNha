@@ -42,4 +42,19 @@ public class DashboardController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+    [HttpGet("admin")]
+    [Authorize(Roles = AppRoles.Admin)] // 👉 Chỉ Admin mới được gọi
+    public async Task<IActionResult> GetAdminDashboard([FromQuery] int? month, [FromQuery] int? year)
+    {
+        try
+        {
+            var query = new GetAdminDashboardQuery { Month = month, Year = year };
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }
